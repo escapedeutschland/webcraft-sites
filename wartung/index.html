@@ -32,6 +32,7 @@
 
     <label>Was soll geändert werden?</label>
     <select id="art">
+      <option value="" disabled selected>Bitte wählen …</option>
       <option value="telefon">Telefonnummer</option>
       <option value="adresse">Adresse</option>
       <option value="email">E-Mail-Adresse</option>
@@ -72,6 +73,7 @@
     const email=document.getElementById('email').value.trim();
     const file=document.getElementById('foto').files[0];
     const err=document.getElementById('err');
+    if(!art){err.textContent='Bitte zuerst auswählen, was geändert werden soll.';err.style.display='block';return;}
     if(!email || (!details && !file)){err.textContent='Bitte E-Mail und entweder Details oder ein Foto angeben.';err.style.display='block';return;}
     err.style.display='none';
     this.disabled=true; this.textContent='wird gesendet …';
