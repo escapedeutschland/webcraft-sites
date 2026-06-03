@@ -437,11 +437,14 @@ Der ganze Reparaturprozess lief unter voller Transparenz und einer guten Kommuni
   const N=MOBILE?151:241;
   const BASE=MOBILE?'https://escapedeutschland.github.io/webcraft-assets/kfz/clip1/frames_m/m_':'https://escapedeutschland.github.io/webcraft-assets/kfz/clip1/frames/f_';
   const pad=n=>('0000'+n).slice(-4), frames=new Array(N);
-  let loaded=0;
+  let loaded=0, revealed=false;
   for(let i=0;i<N;i++){const img=new Image();
     img.onload=()=>{loaded++;
-      if(loader){loader.textContent='Laden… '+Math.round(loaded/N*100)+'%';if(loaded>=N)loader.style.display='none';}
-      if(loaded===1)draw(0);};
+      // Sobald das ERSTE Frame da ist: sofort zeigen + Loader weich ausblenden (kein schwarzer 0-100%-Wartebildschirm)
+      if(!revealed && frames[0] && frames[0].complete && frames[0].naturalWidth){
+        revealed=true; draw(0);
+        if(loader){loader.style.transition='opacity .5s ease';loader.style.opacity='0';setTimeout(()=>{if(loader)loader.style.display='none';},500);}
+      }};
     img.src=BASE+pad(i+1)+'.jpg';frames[i]=img;}
   function sizeCanvas(){const dpr=Math.min(window.devicePixelRatio||1,2);
     canvas.width=Math.round(innerWidth*dpr);canvas.height=Math.round(innerHeight*dpr);}
