@@ -69,7 +69,7 @@
     const err=document.getElementById('err');
     if(!details||!email){err.style.display='block';return;} err.style.display='none';
     this.disabled=true; this.textContent='wird gesendet …';
-    const msg='WCWARTUNG#7 KUNDE: '+slug+' | ART: '+art+' | DETAILS: '+details;
+    const msg='WCWARTUNG#7 KUNDE: '+slug+' | ART: '+art+' | DETAILS: '+details+' #ENDE#';
     const fd=new FormData();
     fd.append('empfaenger',EMPF); fd.append('firma',slug); fd.append('name','Wartung '+slug);
     fd.append('phone',''); fd.append('webseite',slug); fd.append('email',email); fd.append('message',msg);
