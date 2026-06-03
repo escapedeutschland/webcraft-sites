@@ -44,6 +44,9 @@
     <label>Details / neuer Inhalt</label>
     <textarea id="details" placeholder="z. B. neue Telefonnummer, neuer Text, was genau geändert werden soll …"></textarea>
 
+    <label>Foto (optional – z. B. zum Austauschen)</label>
+    <input id="foto" type="file" accept="image/*">
+
     <label>Ihre E-Mail (für die Bestätigung)</label>
     <input id="email" type="email" placeholder="ihre@email.de">
 
@@ -59,6 +62,7 @@
 </div>
 <script>
   const ENDPOINT="https://script.google.com/macros/s/AKfycbyyF6cRQmxbjObnNjjmADQosN8wXRkTiEiwEQSU9yb5Q_k5EaS_kO82Z25hMLk3H1sUyA/exec", EMPF="maximechristalle@gmail.com";
+  const CLOUD="deqrzcnqp", PRESET="Kunden_Bilder";
   const q=new URLSearchParams(location.search);
   const slug=q.get('kunde')||'';
   document.getElementById('site').textContent = slug ? ('Website: '+slug) : 'Website: (bitte über Ihren persönlichen Link öffnen)';
@@ -66,10 +70,21 @@
     const art=document.getElementById('art').value;
     const details=document.getElementById('details').value.trim();
     const email=document.getElementById('email').value.trim();
+    const file=document.getElementById('foto').files[0];
     const err=document.getElementById('err');
-    if(!details||!email){err.style.display='block';return;} err.style.display='none';
+    if(!email || (!details && !file)){err.textContent='Bitte E-Mail und entweder Details oder ein Foto angeben.';err.style.display='block';return;}
+    err.style.display='none';
     this.disabled=true; this.textContent='wird gesendet …';
-    const msg='WCWARTUNG#7 KUNDE: '+slug+' | ART: '+art+' | DETAILS: '+details+' #ENDE#';
+    // Foto (optional) direkt zu Cloudinary hochladen
+    let photoUrl='';
+    if(file){
+      try{
+        const cf=new FormData(); cf.append('file',file); cf.append('upload_preset',PRESET);
+        const res=await fetch('https://api.cloudinary.com/v1_1/'+CLOUD+'/image/upload',{method:'POST',body:cf});
+        const j=await res.json(); photoUrl=j.secure_url||'';
+      }catch(e){}
+    }
+    const msg='WCWARTUNG#7 KUNDE: '+slug+' | ART: '+art+' | DETAILS: '+(details||'(siehe Foto)')+(photoUrl?' | PHOTO: '+photoUrl:'')+' #ENDE#';
     const fd=new FormData();
     fd.append('empfaenger',EMPF); fd.append('firma',slug); fd.append('name','Wartung '+slug);
     fd.append('phone',''); fd.append('webseite',slug); fd.append('email',email); fd.append('message',msg);
