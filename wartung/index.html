@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Änderungswunsch – WebCraft</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#0e1424;color:#e8edf7;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:#141c30;border:1px solid rgba(255,255,255,.09);border-radius:18px;max-width:540px;width:100%;padding:30px 30px 26px}
+  h1{font-size:21px;margin-bottom:4px}
+  .sub{color:#8a93a6;font-size:13.5px;margin-bottom:6px}
+  .site{font-size:12.5px;color:#4ea8ff;margin-bottom:20px;word-break:break-all}
+  label{display:block;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:#8a93a6;margin:14px 0 6px}
+  select,textarea,input{width:100%;background:#0b1322;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#e8edf7;padding:12px 13px;font:inherit}
+  textarea{min-height:110px;resize:vertical}
+  button{width:100%;margin-top:20px;background:#2563eb;color:#fff;border:0;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
+  button:hover{background:#1d4ed8} button:disabled{opacity:.5;cursor:default}
+  .ok{display:none;text-align:center;padding:10px 0}
+  .ok .big{font-size:40px} .ok h2{margin:10px 0 6px} .ok p{color:#8a93a6;font-size:14px}
+  .hint{font-size:12px;color:#8a93a6;margin-top:10px;line-height:1.5}
+  .err{color:#fb7185;font-size:13px;margin-top:10px;display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="form-wrap">
+    <h1>Änderungswunsch</h1>
+    <div class="sub">Ihre Website-Pflege (49 €-Abo) – sagen Sie uns, was geändert werden soll.</div>
+    <div class="site" id="site">Website: …</div>
+
+    <label>Was soll geändert werden?</label>
+    <select id="art">
+      <option value="telefon">Telefonnummer</option>
+      <option value="adresse">Adresse</option>
+      <option value="email">E-Mail-Adresse</option>
+      <option value="oeffnungszeiten">Öffnungszeiten</option>
+      <option value="text">Text / Inhalt anpassen</option>
+      <option value="foto">Foto austauschen</option>
+      <option value="sonstiges">Sonstiges</option>
+    </select>
+
+    <label>Details / neuer Inhalt</label>
+    <textarea id="details" placeholder="z. B. neue Telefonnummer, neuer Text, was genau geändert werden soll …"></textarea>
+
+    <label>Ihre E-Mail (für die Bestätigung)</label>
+    <input id="email" type="email" placeholder="ihre@email.de">
+
+    <button id="send">Änderung absenden →</button>
+    <div class="err" id="err">Bitte Details und E-Mail ausfüllen.</div>
+    <div class="hint">Kleine Änderungen sind im Pflege-Abo enthalten und meist innerhalb von 1–2 Werktagen live.</div>
+  </div>
+  <div class="ok" id="ok">
+    <div class="big">✓</div>
+    <h2>Vielen Dank!</h2>
+    <p>Ihr Änderungswunsch ist bei uns eingegangen. Sie erhalten eine Bestätigung, sobald er live ist.</p>
+  </div>
+</div>
+<script>
+  const ENDPOINT="https://script.google.com/macros/s/AKfycbyyF6cRQmxbjObnNjjmADQosN8wXRkTiEiwEQSU9yb5Q_k5EaS_kO82Z25hMLk3H1sUyA/exec", EMPF="maximechristalle@gmail.com";
+  const q=new URLSearchParams(location.search);
+  const slug=q.get('kunde')||'';
+  document.getElementById('site').textContent = slug ? ('Website: '+slug) : 'Website: (bitte über Ihren persönlichen Link öffnen)';
+  document.getElementById('send').onclick=async function(){
+    const art=document.getElementById('art').value;
+    const details=document.getElementById('details').value.trim();
+    const email=document.getElementById('email').value.trim();
+    const err=document.getElementById('err');
+    if(!details||!email){err.style.display='block';return;} err.style.display='none';
+    this.disabled=true; this.textContent='wird gesendet …';
+    const msg='[WARTUNG] KUNDE: '+slug+' | ART: '+art+' | DETAILS: '+details;
+    const fd=new FormData();
+    fd.append('empfaenger',EMPF); fd.append('firma',slug); fd.append('name','Wartung '+slug);
+    fd.append('phone',''); fd.append('webseite',slug); fd.append('email',email); fd.append('message',msg);
+    try{ await fetch(ENDPOINT,{method:'POST',mode:'no-cors',body:fd}); }catch(e){}
+    document.getElementById('form-wrap').style.display='none';
+    document.getElementById('ok').style.display='block';
+  };
+</script>
+</body>
+</html>
