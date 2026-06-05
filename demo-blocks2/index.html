@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ZEIT FÜR BROT – Ihr Berlin in Berlin. 5844 Bewertungen mit 4.6 Sternen. Jetzt Kontakt aufnehmen: 030 28046780.">
+    <meta name="robots" content="index, follow">
+    <title>ZEIT FÜR BROT - Berlin in Berlin</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2712%27%20fill%3D%27%232c3e50%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2745%27%20font-family%3D%27Arial%2Csans-serif%27%20font-size%3D%2736%27%20font-weight%3D%27bold%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3EZ%3C/text%3E%3C/svg%3E">
+    <meta property="og:title" content="ZEIT FÜR BROT – Berlin in Berlin">
+    <meta property="og:description" content="ZEIT FÜR BROT – Ihr Berlin in Berlin. 5844 Bewertungen mit 4.6 Sternen. Jetzt Kontakt aufnehmen: 030 28046780.">
+    <meta property="og:image" content="https://images.pexels.com/photos/36729741/pexels-photo-36729741.jpeg?auto=compress&cs=tinysrgb&h=650&w=940">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "name": "ZEIT FÜR BROT", "telephone": "030 28046780", "address": {"@type": "PostalAddress", "streetAddress": "Alte Schönhauser Str. 4, 10119 Berlin"}, "areaServed": "Berlin", "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.6", "reviewCount": "5844"}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #1a252f;
+            --accent: #ecf0f1;
+            --dark: #0d1117;
+            --text: #2c3e50;
+            --gradient: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+            --white: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-600: #6c757d;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 48px rgba(0,0,0,0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #2c3e50;
+            background: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0 24px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            transition: var(--transition);
+        }
+
+        .navbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: clamp(0.95rem, 2.6vw, 1.25rem);
+            color: var(--dark);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-right: 12px;
+        }
+
+        .navbar-brand span {
+            color: var(--primary);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .navbar-phone {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50px;
+            transition: var(--transition);
+        }
+
+        .navbar-phone:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.pexels.com/photos/31353700/pexels-photo-31353700.jpeg?auto=compress&cs=tinysrgb&h=650&w=940');
+            background-size: cover;
+            background-position: center;
+            transform: scale(1.05);
+            transition: transform 8s ease-out;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(13,17,23,0.85) 0%, rgba(44,62,80,0.7) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 24px 80px;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 28px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            color: white;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+
+        .hero-title span {
+            color: var(--primary);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 16px;
+            max-width: 560px;
+        }
+
+        .hero-address {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+        }
+
+        .hero-rating {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 14px 24px;
+            border-radius: 12px;
+            display: inline-flex;
+        }
+
+        .hero-rating-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+        }
+
+        .hero-rating-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hero-rating-count {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--dark);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Sections */
+        .section {
+            padding: 100px 24px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.8rem, 4vw, 2.75rem);
+            font-weight: 800;
+            color: var(--dark);
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        /* About section */
+        .about-section {
+            background: var(--gray-100);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .about-image-wrapper {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .about-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .about-image-badge {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            background: var(--gradient);
+            color: white;
+            padding: 16px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .about-image-badge .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .about-image-badge .label {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        .about-content h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        .about-content p {
+            color: var(--gray-600);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .about-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .about-feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .about-feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Reviews */
+        .reviews-section {
+            background: white;
+        }
+
+        .overall-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+            padding: 20px 32px;
+            background: var(--accent);
+            border-radius: var(--radius);
+            display: inline-flex;
+        }
+
+        .rating-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .rating-count {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 28px;
+        }
+
+        .review-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .review-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .reviewer-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .reviewer-info {
+            flex: 1;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .review-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .stars-container {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+        }
+
+        .quote-icon {
+            opacity: 0.4;
+        }
+
+        .review-text {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.75;
+            font-style: italic;
+        }
+
+        /* Contact section */
+        .contact-section {
+            background: var(--dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 50%;
+            height: 200%;
+            background: var(--gradient);
+            opacity: 0.08;
+            transform: rotate(-15deg);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .contact-info h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .contact-info p {
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 40px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: var(--transition);
+            padding: 16px 20px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .contact-detail:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .contact-detail-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .contact-detail-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .contact-detail-label {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .contact-detail-value {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Form */
+        .contact-form {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+            color: var(--dark);
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px #2c3e5022;
+        }
+
+        textarea.form-control {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            margin-top: 8px;
+            font-family: inherit;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+        }
+
+        /* Footer */
+        .footer {
+            background: #0a0a0a;
+            color: rgba(255,255,255,0.6);
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .footer-address {
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
+
+        .footer-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin: 24px 0;
+        }
+
+        .footer-legal {
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 48px;
+            height: 48px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transform: translateY(16px);
+            transition: var(--transition);
+            border: none;
+            z-index: 100;
+            text-decoration: none;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            background: var(--gradient);
+            padding: 24px;
+        }
+
+        .stats-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section {
+                padding: 60px 20px;
+            }
+
+            .about-grid,
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-form {
+                padding: 32px 24px;
+            }
+
+            .stats-inner {
+                gap: 32px;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-phone {
+                display: none;
+            }
+
+            .hero-content {
+                padding: 100px 20px 60px;
+            }
+
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-rating {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    
+        /* === Branchen-Theme: Berlin === */
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        h1, h2, h3, .hero-title, .section-title, .navbar-brand, .stat-number,
+        .hero-rating-number, .rating-number, .footer-name {
+            font-family: 'Sora', Georgia, serif; letter-spacing: -0.01em;
+        }
+        .hero-title, .section-title { text-transform: none; }
+        .btn, .btn-primary, .btn-secondary, .btn-white, .form-submit, .nav-cta {
+            border-radius: 8px !important;
+        }
+        .service-card, .review-card, .contact-form { box-shadow: 0 10px 30px rgba(0,0,0,0.10); }
+        /* Entrance-Animationen */
+        @keyframes wcUp { from { opacity:0; transform: translateY(28px); } to { opacity:1; transform:none; } }
+        .hero-content > * { animation: wcUp .7s cubic-bezier(.2,.7,.2,1) both; }
+        .hero-content > *:nth-child(2) { animation-delay:.08s; }
+        .hero-content > *:nth-child(3) { animation-delay:.16s; }
+        .hero-content > *:nth-child(4) { animation-delay:.24s; }
+        .hero-content > *:nth-child(5) { animation-delay:.32s; }
+        .service-card, .review-card { transition: transform .7s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease; }
+        .service-card:hover, .review-card:hover { transform: translateY(-8px); }
+        .btn-primary, .nav-cta { transition: transform .25s ease, box-shadow .25s ease, filter .25s ease; }
+        .btn-primary:hover, .nav-cta:hover { transform: translateY(-2px); filter: brightness(1.05); }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+    
+    </style>
+
+<style id="sr-anim">
+.sr{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.sr.vis{opacity:1;transform:none}
+.sr-2{transition-delay:.12s}.sr-3{transition-delay:.24s}
+img{transition:transform .5s ease}
+@media(prefers-reduced-motion:reduce){.sr{opacity:1!important;transform:none!important}}
+</style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="#" class="navbar-brand">ZEIT FÜR BROT</a>
+            <div class="navbar-actions">
+                <a href="tel:+493028046780" class="navbar-phone"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.72 3.39a2 2 0 0 1 1.99-2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6.36 6.36l1.59-1.05a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>030 28046780</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home"><div class="hero-bg" id="hero-bg"></div><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg> Berlin &mdash; Berlin</div><h1 class="hero-title">ZEIT FÜR BROT</h1><p class="hero-subtitle">Berlin in Berlin</p><div class="hero-address"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+        </svg><span>Alte Schönhauser Str. 4, 10119 Berlin</span></div><div class="hero-rating"><div class="hero-rating-number">4.6</div><div class="hero-rating-info"><div class="stars-container"><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-half">
+                <defs>
+                    <linearGradient id="half-grad-4" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="50%" style="stop-color:#f39c12"/>
+                        <stop offset="50%" style="stop-color:#ddd"/>
+                    </linearGradient>
+                </defs>
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="url(#half-grad-4)" stroke="#ccc" stroke-width="0.5"/>
+            </svg></div><span class="hero-rating-count">5844 Bewertungen auf Google</span></div></div><div class="hero-actions"><a href="tel:+493028046780" class="btn btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.72 3.39a2 2 0 0 1 1.99-2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6.36 6.36l1.59-1.05a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg> Jetzt anrufen</a><a href="#kontakt" class="btn btn-white"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+        </svg> Kontakt</a></div></div></section>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar"><div class="stats-inner"><div class="stat-item"><div class="stat-number">4.6</div><div class="stat-label">Google Bewertung</div></div><div class="stat-item"><div class="stat-number">5844+</div><div class="stat-label">Kundenbewertungen</div></div><div class="stat-item"><div class="stat-number">100%</div><div class="stat-label">Kundenzufriedenheit</div></div></div></div>
+
+    <!-- About Section -->
+    <section class="section about-section" id="ueber-uns">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image-wrapper">
+                    <img src="https://images.pexels.com/photos/36729524/pexels-photo-36729524.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+                         alt="ZEIT FÜR BROT - Berlin"
+                         loading="lazy">
+                    <div class="about-image-badge"><div class="number">4.6</div><div class="label">Google Sterne</div></div>
+                </div>
+                <div class="about-content">
+                    <div class="section-badge">Über uns</div>
+                    <h2>Ihr Fachbetrieb für Berlin in Berlin</h2>
+                    <p>
+                        ZEIT FÜR BROT ist Ihr kompetenter Ansprechpartner für Berlin in Berlin und Umgebung.
+                        Mit professionellem Know-how und hohem Qualitätsanspruch stehen wir Ihnen zur Seite.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <div class="about-feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg></div>
+                            Professionelle Beratung und Ausführung
+                        </div>
+                        <div class="about-feature">
+                            <div class="about-feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg></div>
+                            Zuverlässig und termingerecht
+                        </div>
+                        <div class="about-feature">
+                            <div class="about-feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg></div>
+                            5844 Bewertungen auf Google
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                        <a href="tel:+493028046780" class="btn btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.72 3.39a2 2 0 0 1 1.99-2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6.36 6.36l1.59-1.05a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg> Jetzt anrufen</a>
+                        <a href="mailto:demo@webcraft.de" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+        </svg> E-Mail schreiben</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section style="padding:80px 24px;background:#f8f8f8"><div style="max-width:1140px;margin:0 auto"><div style="text-align:center;margin-bottom:46px"><div style="display:inline-block;background:#2c3e501a;color:#2c3e50;padding:6px 16px;border-radius:50px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Leistungen</div><h2 class="section-title" style="font-size:2.2rem;color:#1a1a1a">Unsere Leistungen</h2></div><div style="max-width:920px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px 44px"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex:none;width:30px;height:30px;border-radius:8px;background:#2c3e501a;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg></div><div><h3 style="font-size:1.05rem;color:#1a1a1a;margin-bottom:4px;font-weight:700">Professionelle Beratung</h3><p style="color:#666;line-height:1.55;font-size:.9rem">Wir hören zu und finden die passende Lösung.</p></div></div><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex:none;width:30px;height:30px;border-radius:8px;background:#2c3e501a;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg></div><div><h3 style="font-size:1.05rem;color:#1a1a1a;margin-bottom:4px;font-weight:700">Zuverlässige Ausführung</h3><p style="color:#666;line-height:1.55;font-size:.9rem">Termintreu und in hoher Qualität.</p></div></div><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex:none;width:30px;height:30px;border-radius:8px;background:#2c3e501a;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg></div><div><h3 style="font-size:1.05rem;color:#1a1a1a;margin-bottom:4px;font-weight:700">Faire Preise</h3><p style="color:#666;line-height:1.55;font-size:.9rem">Transparent und ohne versteckte Kosten.</p></div></div><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex:none;width:30px;height:30px;border-radius:8px;background:#2c3e501a;display:flex;align-items:center;justify-content:center;margin-top:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg></div><div><h3 style="font-size:1.05rem;color:#1a1a1a;margin-bottom:4px;font-weight:700">Persönlicher Service</h3><p style="color:#666;line-height:1.55;font-size:.9rem">Ein Ansprechpartner, der sich kümmert.</p></div></div></div></div></section>
+
+    
+    <!-- Reviews Section -->
+    <section class="section reviews-section" id="bewertungen">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">Kundenstimmen</div>
+                <h2 class="section-title">Das sagen unsere Kunden</h2>
+                <p class="section-subtitle">Echte Bewertungen von Google</p>
+                <div class="overall-rating">
+                    <span class="rating-number">4.6</span>
+                    <div class="stars-container"><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-half">
+                <defs>
+                    <linearGradient id="half-grad-4" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="50%" style="stop-color:#f39c12"/>
+                        <stop offset="50%" style="stop-color:#ddd"/>
+                    </linearGradient>
+                </defs>
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="url(#half-grad-4)" stroke="#ccc" stroke-width="0.5"/>
+            </svg></div>
+                    <span class="rating-count">5844 Bewertungen auf Google</span>
+                </div>
+            </div>
+            <div class="reviews-grid">
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-avatar">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+                        </div>
+                        <div class="reviewer-info">
+                            <span class="reviewer-name">Google-Bewertung 1</span>
+                            <div class="review-stars"><div class="stars-container"><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg></div></div>
+                        </div>
+                        <div class="quote-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="#2c3e5033" stroke="none">
+            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+            <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+        </svg>
+                        </div>
+                    </div>
+                    <p class="review-text">Wer Berlin besucht, sollte auf jeden Fall einen Stopp bei Zeit für Brot einlegen. Dort findet man nicht nur köstliche Brötchen, sondern auch richtig schmackhafte Zimtschnecken. Meiner Meinung nach sind das die besten, die ich je probiert habe. Besonders gerne mag ich die Zimtschnecke mit weißer Schokolade und Himbeeren.</p>
+                </div>
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-avatar">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+                        </div>
+                        <div class="reviewer-info">
+                            <span class="reviewer-name">Google-Bewertung 2</span>
+                            <div class="review-stars"><div class="stars-container"><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg></div></div>
+                        </div>
+                        <div class="quote-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="#2c3e5033" stroke="none">
+            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+            <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+        </svg>
+                        </div>
+                    </div>
+                    <p class="review-text">Bin hier gerne hin gekommen, aber 4,7€ für eine immer dicker werdende Schichten Teig (scheint anscheinend schneller zu verarbeiten zu sein und braucht vielleicht aichvweniger Füllung) ist dann doch das Geld nicht wert. Auch außen etwas trocken, ich war um 11 Uhr in der Früh da, denke man kann da erwarten das die Waren frisch sein sollten.</p>
+                </div>
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-avatar">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+                        </div>
+                        <div class="reviewer-info">
+                            <span class="reviewer-name">Google-Bewertung 3</span>
+                            <div class="review-stars"><div class="stars-container"><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                    fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
+            </svg></div></div>
+                        </div>
+                        <div class="quote-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="#2c3e5033" stroke="none">
+            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+            <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+        </svg>
+                        </div>
+                    </div>
+                    <p class="review-text">Wenn ich richtig gutes Brot will, gehe ich zu Zeit für Brot. Die Zimtschnecken sind einfach legendär — außen leicht knusprig, innen super weich. Alles frisch, alles mit Liebe gemacht. Genau so muss eine Berliner Bäckerei sein. Komme immer wieder gern vorbei!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @@WEBCRAFT_REVIEWS@@
+
+    
+    <section style="padding:70px 24px;background:#fff"><div style="max-width:520px;margin:0 auto;text-align:center"><div style="display:inline-block;background:#2c3e501a;color:#2c3e50;padding:6px 16px;border-radius:50px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Öffnungszeiten</div><h2 style="font-size:1.9rem;color:#1a1a1a;margin-bottom:20px">Wann wir für Sie da sind</h2><div style="text-align:left"><div style="display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07)"><span style="font-weight:600;color:#1a1a1a">Montag</span><span style="color:#666">07:00–20:00 Uhr</span></div><div style="display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07)"><span style="font-weight:600;color:#1a1a1a">Dienstag</span><span style="color:#666">07:00–20:00 Uhr</span></div><div style="display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07)"><span style="font-weight:600;color:#1a1a1a">Mittwoch</span><span style="color:#666">07:00–20:00 Uhr</span></div><div style="display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07)"><span style="font-weight:600;color:#1a1a1a">Donnerstag</span><span style="color:#666">07:00–20:00 Uhr</span></div><div style="display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07)"><span style="font-weight:600;color:#1a1a1a">Freitag</span><span style="color:#666">07:00–20:00 Uhr</span></div><div style="display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07)"><span style="font-weight:600;color:#1a1a1a">Samstag</span><span style="color:#666">08:00–20:00 Uhr</span></div><div style="display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07)"><span style="font-weight:600;color:#1a1a1a">Sonntag</span><span style="color:#666">08:00–18:00 Uhr</span></div></div></div></section>
+    
+
+    
+    <!-- Contact Section -->
+    <section class="section contact-section" id="kontakt">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="section-badge" style="background:rgba(255,255,255,0.1);color:white;">Kontakt</div>
+                    <h2>Sprechen Sie uns an</h2>
+                    <p>Wir freuen uns auf Ihre Anfrage und melden uns schnellstmöglich bei Ihnen.</p>
+                    <div class="contact-details">
+                        <a href="tel:+493028046780" class="contact-detail"><div class="contact-detail-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.72 3.39a2 2 0 0 1 1.99-2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6.36 6.36l1.59-1.05a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg></div><div class="contact-detail-text"><span class="contact-detail-label">Telefon</span><span class="contact-detail-value">030 28046780</span></div></a>
+                        <a href="mailto:demo@webcraft.de" class="contact-detail"><div class="contact-detail-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+        </svg></div><div class="contact-detail-text"><span class="contact-detail-label">E-Mail</span><span class="contact-detail-value">demo@webcraft.de</span></div></a>
+                        <div class="contact-detail"><div class="contact-detail-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+        </svg></div><div class="contact-detail-text"><span class="contact-detail-label">Adresse</span><span class="contact-detail-value">Alte Schönhauser Str. 4, 10119 Berlin</span></div></div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <div class="form-title">Nachricht senden</div>
+                    <div class="form-subtitle">Wir antworten in der Regel innerhalb von 24 Stunden.</div>
+                    <form name="kontakt" method="POST" action="https://script.google.com/macros/s/AKfycbyyF6cRQmxbjObnNjjmADQosN8wXRkTiEiwEQSU9yb5Q_k5EaS_kO82Z25hMLk3H1sUyA/exec">
+                        <input type="hidden" name="empfaenger" value="demo@webcraft.de">
+                        <input type="hidden" name="firma" value="ZEIT FÜR BROT">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="name">Ihr Name *</label>
+                                <input type="text" id="name" name="name" class="form-control" placeholder="Max Mustermann" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="email">E-Mail-Adresse *</label>
+                                <input type="email" id="email" name="email" class="form-control" placeholder="max@beispiel.de" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="phone">Telefonnummer</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" placeholder="+49 123 456789">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="message">Ihre Nachricht *</label>
+                            <textarea id="message" name="message" class="form-control" placeholder="Beschreiben Sie Ihr Anliegen..." required></textarea>
+                        </div>
+                        <button type="submit" class="form-submit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+                            Nachricht absenden
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Footer -->
+    <section style="padding:0"><div style="max-width:100%;"><iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyC52YLtpc46F8RfdiSgnEnm8hsDK7OC_N8&q=Alte%20Sch%C3%B6nhauser%20Str.%204%2C%2010119%20Berlin&zoom=16" width="100%" height="320" style="border:0;display:block" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div></section><footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-name">ZEIT FÜR BROT</div>
+            <div class="footer-address">Alte Schönhauser Str. 4, 10119 Berlin</div>
+            <a href="tel:+493028046780" style="color:var(--primary);text-decoration:none;font-weight:600;">030 28046780</a>
+            <hr class="footer-divider">
+            <div class="footer-legal">
+                &copy; ZEIT FÜR BROT | Berlin in Berlin | Alle Rechte vorbehalten
+            </div>
+            <div class="footer-legal" style="margin-top:8px;">
+                <a href="impressum.html" style="color:inherit;text-decoration:underline;">Impressum</a>
+                &nbsp;·&nbsp;
+                <a href="datenschutz.html" style="color:inherit;text-decoration:underline;">Datenschutz</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top -->
+    <a href="#home" class="scroll-top" id="scrollTop" aria-label="Nach oben scrollen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"/>
+        </svg>
+    </a>
+
+    <script>
+        // Scroll to top button visibility
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        // Parallax hero
+        const heroBg = document.getElementById('hero-bg');
+        window.addEventListener('scroll', () => {
+            if (heroBg) {
+                heroBg.style.transform = 'scale(1.05) translateY(' + (window.scrollY * 0.3) + 'px)';
+            }
+        });
+
+        // Animate on scroll (simple intersection observer)
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.review-card, .about-feature, .contact-detail').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+    </script>
+
+<script>
+(function(){var o=new IntersectionObserver(function(es){es.forEach(function(e){
+if(e.isIntersecting){e.target.classList.add('vis');o.unobserve(e.target);}});},
+{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('section,.sr').forEach(function(el,i){el.classList.add('sr');if(i%3===1)el.classList.add('sr-2');if(i%3===2)el.classList.add('sr-3');o.observe(el);});})();
+</script>
+</body>
+</html>
