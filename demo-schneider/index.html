@@ -210,7 +210,7 @@
     <canvas id="cine"></canvas>
     <div class="loader" id="loader">Laden… 0%</div>
     <div class="veil"></div>
-    <div class="h-over right brand light" data-stop="0"><span class="kicker">Schneiderei · Berlin</span><h1 style="font-size:clamp(1.9rem,6.2vw,2.5rem)">Änderungsschneiderei Adam</h1><p>Maßarbeit, die sitzt — Schneiderhandwerk mit Liebe zum Detail.</p></div><div class="h-over right light" data-stop="1"><span class="kicker">Perfekter Sitz</span><h1>Bis zum letzten Knopf</h1><p>Änderung, Anfertigung, Reparatur — sauber verarbeitet, Stich für Stich.</p></div><div class="h-over right light" data-stop="2"><span class="kicker">Vom Maß zum Meisterstück</span><h1>Perfekt von oben bis unten</h1><p>Damit jedes Teil sitzt wie angegossen — vom Sakko bis zur Hose.</p></div>
+    <div class="h-over left brand" data-stop="0"><span class="kicker">Schneiderei · Berlin</span><h1 style="font-size:clamp(1.9rem,6.2vw,2.5rem)">Änderungsschneiderei Adam</h1><p>Maßarbeit, die sitzt — in einem Atelier voller Handwerk.</p></div><div class="h-over left" data-stop="1"><span class="kicker">Handwerk & Material</span><h1>Stoff, Schere, Faden</h1><p>Feinste Stoffe, präzise verarbeitet – alles aus einer Hand.</p></div><div class="h-over left" data-stop="2"><span class="kicker">Das Ergebnis</span><h1>Ihr Maßstück</h1><p>Damit jedes Teil sitzt wie angegossen.</p></div>
     <div class="fade-bottom"></div>
     <div class="scroll-hint" id="hint">↓ scrollen</div>
   </div>
@@ -459,7 +459,7 @@ Gute Arbeit zum guten Preis.</p></div></div>
   const stats=document.getElementById('stats');
   const MOBILE=matchMedia('(max-width:760px)').matches;
   const N=MOBILE?151:241;
-  const BASE=MOBILE?'https://escapedeutschland.github.io/webcraft-assets/schneider/clip1/frames_m/m_':'https://escapedeutschland.github.io/webcraft-assets/schneider/clip1/frames/f_';
+  const BASE=MOBILE?'https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames_m/m_':'https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames/f_';
   const pad=n=>('0000'+n).slice(-4), frames=new Array(N);
   let loaded=0, revealed=false;
   for(let i=0;i<N;i++){const img=new Image();
@@ -477,7 +477,7 @@ Gute Arbeit zum guten Preis.</p></div></div>
     const cw=canvas.width,ch=canvas.height,ir=img.naturalWidth/img.naturalHeight,cr=cw/ch;let dw,dh,dx,dy;
     if(ir>cr){dh=ch;dw=ch*ir;dx=(cw-dw)/2;dy=0;}else{dw=cw;dh=cw/ir;dx=0;dy=(ch-dh)/2;}
     ctx.drawImage(img,dx,dy,dw,dh);}
-  const STOPS=[0.06,0.41,0.9];
+  const STOPS=[0.05,0.46,0.9];
   STOPS.forEach((s)=>{const b=document.createElement('button');
     b.onclick=()=>scrollTo({top:wrap.offsetTop+s*(wrap.offsetHeight-innerHeight),behavior:'smooth'});dotsBox.appendChild(b);});
   const dots=[...dotsBox.children];
