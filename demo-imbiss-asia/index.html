@@ -440,7 +440,7 @@
         revealed=true; draw(0);
         if(loader){loader.style.transition='opacity .5s ease';loader.style.opacity='0';setTimeout(()=>{if(loader)loader.style.display='none';},500);}
       }};
-    img.src=BASE+pad(i+1)+'.jpg';frames[i]=img;}
+    img.src=BASE+pad(i+1)+'.jpg?v=2';frames[i]=img;}
   function sizeCanvas(){const dpr=Math.min(window.devicePixelRatio||1,2);
     canvas.width=Math.round(innerWidth*dpr);canvas.height=Math.round(innerHeight*dpr);}
   function draw(idx){const img=frames[Math.max(0,Math.min(N-1,Math.round(idx)))];
