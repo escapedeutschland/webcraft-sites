@@ -459,7 +459,7 @@ Gute Arbeit zum guten Preis.</p></div></div>
   const stats=document.getElementById('stats');
   const MOBILE=matchMedia('(max-width:760px)').matches;
   const N=MOBILE?151:241;
-  const BASE=MOBILE?'https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames_m/m_':'https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames/f_';
+  const BASE=MOBILE?'https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames_mp/m_':'https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames/f_';
   const pad=n=>('0000'+n).slice(-4), frames=new Array(N);
   let loaded=0, revealed=false;
   for(let i=0;i<N;i++){const img=new Image();
