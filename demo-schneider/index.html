@@ -477,7 +477,7 @@ Gute Arbeit zum guten Preis.</p></div></div>
     const cw=canvas.width,ch=canvas.height,ir=img.naturalWidth/img.naturalHeight,cr=cw/ch;let dw,dh,dx,dy;
     if(ir>cr){dh=ch;dw=ch*ir;dx=(cw-dw)/2;dy=0;}else{dw=cw;dh=cw/ir;dx=0;dy=(ch-dh)/2;}
     ctx.drawImage(img,dx,dy,dw,dh);}
-  const STOPS=[0.05,0.46,0.9];
+  const STOPS=[0.04,0.5,0.93];
   STOPS.forEach((s)=>{const b=document.createElement('button');
     b.onclick=()=>scrollTo({top:wrap.offsetTop+s*(wrap.offsetHeight-innerHeight),behavior:'smooth'});dotsBox.appendChild(b);});
   const dots=[...dotsBox.children];
