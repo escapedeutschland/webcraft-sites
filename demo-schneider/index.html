@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <meta property="og:title" content="Änderungsschneiderei Adam – Schneiderei Berlin">
 <meta property="og:description" content="Ihre Schneiderei in Berlin. Top bewertet auf Google.">
-<meta property="og:image" content="https://images.pexels.com/photos/3984853/pexels-photo-3984853.jpeg?auto=compress&cs=tinysrgb&h=650&w=940">
+<meta property="og:image" content="https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames/f_0222.jpg">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "Änderungsschneiderei Adam", "telephone": "01577 6202587", "address": {"@type": "PostalAddress", "streetAddress": "Hermannstraße 10, 12049 Berlin", "addressLocality": "Berlin"}, "areaServed": "Berlin", "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "640"}}</script>
@@ -67,6 +67,16 @@
   /* Helles Theme: dunkle, elegante Schrift fuer helle Clips (z.B. Schneiderei) */
   .h-over.light h1{color:#1a1a1a;text-shadow:0 1px 2px rgba(255,255,255,.75),0 4px 22px rgba(255,255,255,.55)}
   .h-over.light p{color:#2b2b2b;text-shadow:0 1px 2px rgba(255,255,255,.8),0 2px 10px rgba(255,255,255,.6)}
+  /* Header-Stile PRO KUNDE: variieren Kicker + Lesbarkeits-Scrim (Position bleibt fix aus cfg) */
+  /* 1) Verlauf: weicher dunkler Halo hinter dem Text, Akzent-Pille als Kicker (Default) */
+  .h-over.hs-verlauf::before{content:"";position:absolute;inset:-26px -38px;z-index:-1;border-radius:30px;
+    background:radial-gradient(ellipse at center,rgba(0,0,0,.5),rgba(0,0,0,0) 72%)}
+  /* 2) Karte: dunkle, abgerundete Flaeche hinter dem Text, Kicker als Versal-Label */
+  .h-over.hs-karte{background:rgba(16,18,22,.46);padding:24px 28px;border-radius:16px;box-shadow:0 22px 54px rgba(0,0,0,.3)}
+  .h-over.hs-karte .kicker{background:transparent;color:#fff;padding:0;border-radius:0;letter-spacing:.2em;text-transform:uppercase;font-size:12px;opacity:.92}
+  /* 3) Glas: milchige Glas-Karte hinter dem Text, Kicker in Akzentfarbe als Versal */
+  .h-over.hs-glas{background:rgba(16,20,26,.34);backdrop-filter:blur(10px) saturate(1.15);-webkit-backdrop-filter:blur(10px) saturate(1.15);border:1px solid rgba(255,255,255,.16);padding:24px 28px;border-radius:18px}
+  .h-over.hs-glas .kicker{background:transparent;color:var(--accent);padding:0;border-radius:0;letter-spacing:.22em;text-transform:uppercase;font-size:12px;font-weight:800}
   .dots{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:13px;opacity:0;transition:opacity .4s}
   .dots.show{opacity:1}
   .dots button{width:12px;height:12px;border-radius:50%;border:2px solid #fff;background:transparent;cursor:pointer;padding:0;transition:all .3s;box-shadow:0 0 6px rgba(0,0,0,.4)}
@@ -165,7 +175,7 @@
   .imgband p{font-size:1.15rem;color:rgba(255,255,255,.94)}
   .cta-band{position:relative;padding:80px 24px;text-align:center;color:#fff;
     background:linear-gradient(125deg,rgba(33,44,68,.94) 0%,rgba(46,58,89,.82) 100%),
-      url('https://images.pexels.com/photos/3984872/pexels-photo-3984872.jpeg?auto=compress&cs=tinysrgb&h=650&w=940') center/cover;background-attachment:fixed}
+      url('https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames/f_0222.jpg') center/cover;background-attachment:fixed}
   .cta-band h2{font-size:clamp(1.8rem,3.6vw,2.6rem);margin-bottom:12px;text-shadow:0 3px 24px rgba(0,0,0,.25)}
   .cta-band p{color:rgba(255,255,255,.96);font-size:1.1rem;margin-bottom:26px}
   .cta-band .btn{background:#fff}
@@ -210,7 +220,7 @@
     <canvas id="cine"></canvas>
     <div class="loader" id="loader">Laden… 0%</div>
     <div class="veil"></div>
-    <div class="h-over left brand" data-stop="0"><span class="kicker">Schneiderei · Berlin</span><h1 style="font-size:clamp(1.9rem,6.2vw,2.5rem)">Änderungsschneiderei Adam</h1><p>Maßarbeit, die sitzt — in einem Atelier voller Handwerk.</p></div><div class="h-over left" data-stop="1"><span class="kicker">Handwerk & Material</span><h1>Stoff, Schere, Faden</h1><p>Feinste Stoffe, präzise verarbeitet – alles aus einer Hand.</p></div><div class="h-over left" data-stop="2"><span class="kicker">Das Ergebnis</span><h1>Ihr Maßstück</h1><p>Damit jedes Teil sitzt wie angegossen.</p></div>
+    <div class="h-over left brand hs-karte" data-stop="0"><span class="kicker">Schneiderei · Berlin</span><h1 style="font-size:clamp(1.9rem,6.2vw,2.5rem)">Änderungsschneiderei Adam</h1><p>Maßarbeit, die sitzt — in einem Atelier voller Handwerk.</p></div><div class="h-over left hs-karte" data-stop="1"><span class="kicker">Handwerk & Material</span><h1>Stoff, Schere, Faden</h1><p>Feinste Stoffe, präzise verarbeitet – alles aus einer Hand.</p></div><div class="h-over left hs-karte" data-stop="2"><span class="kicker">Das Ergebnis</span><h1>Ihr Maßstück</h1><p>Damit jedes Teil sitzt wie angegossen.</p></div>
     <div class="fade-bottom"></div>
     <div class="scroll-hint" id="hint">↓ scrollen</div>
   </div>
@@ -235,7 +245,7 @@
       <ul class="checks"><li>Erfahrene Schneidermeister</li><li>Änderung, Maßanfertigung & Reparatur</li><li>Hochwertige Materialien & Verarbeitung</li><li>Termintreu & persönlich</li></ul>
       <a class="btn" href="#kontakt">Kontakt aufnehmen</a>
     </div>
-    <div class="ph"><img src="https://images.pexels.com/photos/3984853/pexels-photo-3984853.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Eindruck" loading="lazy"></div>
+    <div class="ph"><img src="https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames/f_0043.jpg" alt="Eindruck" loading="lazy"></div>
   </div>
 </section>
 
@@ -272,7 +282,7 @@
   </div>
 </section>
 
-<section class="imgband" style="background-image:url('https://images.pexels.com/photos/4621891/pexels-photo-4621891.jpeg?auto=compress&cs=tinysrgb&h=650&w=940')">
+<section class="imgband" style="background-image:url('https://escapedeutschland.github.io/webcraft-assets/schneider/clip2/frames/f_0133.jpg')">
   <div class="inner reveal">
     <span class="kicker" style="background:rgba(255,255,255,.2);color:#fff">Handwerk & Sorgfalt</span>
     <h2>Leidenschaft für Mode & Maß</h2>
