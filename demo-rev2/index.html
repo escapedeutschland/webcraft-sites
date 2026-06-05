@@ -872,6 +872,15 @@
         .btn-primary, .nav-cta { transition: transform .25s ease, box-shadow .25s ease, filter .25s ease; }
         .btn-primary:hover, .nav-cta:hover { transform: translateY(-2px); filter: brightness(1.05); }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+        /* Bewertungen: Desktop voller Text; Mobile gekuerzt + 'Mehr lesen'-Aufklappen (reines CSS, kein JS) */
+        .rev-more { display:none; }
+        .rev-toggle { display:none; }
+        @media (max-width: 760px) {
+            .rev-text { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+            .rev-more:checked ~ .rev-text { -webkit-line-clamp:unset; overflow:visible; }
+            .rev-toggle { display:inline-block; margin-top:8px; color:var(--primary); font-weight:700; font-size:.85rem; cursor:pointer; }
+            .rev-more:checked ~ .rev-toggle { display:none; }
+        }
     
     </style>
 
@@ -999,7 +1008,7 @@ img{transition:transform .5s ease}
             </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
                 <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
                     fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
-            </svg></div></div></div><p style="color:#555;line-height:1.65;font-size:.95rem">Wer Berlin besucht, sollte auf jeden Fall einen Stopp bei Zeit für Brot einlegen. Dort findet man nicht nur köstliche Brötchen, sondern auch richtig schmackhafte Zimtschnecken. Meiner Meinung nach sind das die besten, die ich je probiert habe. Besonders gerne mag ich die Zimtschnecke mit weißer Schokolade und Himbeeren.</p></div><div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:46px;height:46px;border-radius:50%;background:#2c3e501a;display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            </svg></div></div></div><input type="checkbox" id="wcrev0" class="rev-more"><p class="rev-text" style="color:#555;line-height:1.65;font-size:.95rem">Wer Berlin besucht, sollte auf jeden Fall einen Stopp bei Zeit für Brot einlegen. Dort findet man nicht nur köstliche Brötchen, sondern auch richtig schmackhafte Zimtschnecken. Meiner Meinung nach sind das die besten, die ich je probiert habe. Besonders gerne mag ich die Zimtschnecke mit weißer Schokolade und Himbeeren.</p><label for="wcrev0" class="rev-toggle">Mehr lesen ↓</label></div><div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:46px;height:46px;border-radius:50%;background:#2c3e501a;display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
         </svg></div><div><div style="font-weight:700;color:#1a1a1a;font-size:.98rem">Google-Bewertung</div><div class="stars-container"><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
@@ -1017,7 +1026,7 @@ img{transition:transform .5s ease}
             </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
                 <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
                     fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
-            </svg></div></div></div><p style="color:#555;line-height:1.65;font-size:.95rem">Bin hier gerne hin gekommen, aber 4,7€ für eine immer dicker werdende Schichten Teig (scheint anscheinend schneller zu verarbeiten zu sein und braucht vielleicht aichvweniger Füllung) ist dann doch das Geld nicht wert. Auch außen etwas trocken, ich war um 11 Uhr in der Früh da, denke man kann da erwarten das die Waren frisch sein sollten.</p></div><div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:46px;height:46px;border-radius:50%;background:#2c3e501a;display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            </svg></div></div></div><input type="checkbox" id="wcrev1" class="rev-more"><p class="rev-text" style="color:#555;line-height:1.65;font-size:.95rem">Bin hier gerne hin gekommen, aber 4,7€ für eine immer dicker werdende Schichten Teig (scheint anscheinend schneller zu verarbeiten zu sein und braucht vielleicht aichvweniger Füllung) ist dann doch das Geld nicht wert. Auch außen etwas trocken, ich war um 11 Uhr in der Früh da, denke man kann da erwarten das die Waren frisch sein sollten.</p><label for="wcrev1" class="rev-toggle">Mehr lesen ↓</label></div><div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:46px;height:46px;border-radius:50%;background:#2c3e501a;display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
         </svg></div><div><div style="font-weight:700;color:#1a1a1a;font-size:.98rem">Google-Bewertung</div><div class="stars-container"><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
@@ -1035,7 +1044,7 @@ img{transition:transform .5s ease}
             </svg><svg width="20" height="20" viewBox="0 0 24 24" class="star star-full">
                 <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
                     fill="#f39c12" stroke="#e67e22" stroke-width="0.5"/>
-            </svg></div></div></div><p style="color:#555;line-height:1.65;font-size:.95rem">Wenn ich richtig gutes Brot will, gehe ich zu Zeit für Brot. Die Zimtschnecken sind einfach legendär — außen leicht knusprig, innen super weich. Alles frisch, alles mit Liebe gemacht. Genau so muss eine Berliner Bäckerei sein. Komme immer wieder gern vorbei!</p></div></div></div></section>
+            </svg></div></div></div><input type="checkbox" id="wcrev2" class="rev-more"><p class="rev-text" style="color:#555;line-height:1.65;font-size:.95rem">Wenn ich richtig gutes Brot will, gehe ich zu Zeit für Brot. Die Zimtschnecken sind einfach legendär — außen leicht knusprig, innen super weich. Alles frisch, alles mit Liebe gemacht. Genau so muss eine Berliner Bäckerei sein. Komme immer wieder gern vorbei!</p><label for="wcrev2" class="rev-toggle">Mehr lesen ↓</label></div></div></div></section>
 
     @@WEBCRAFT_REVIEWS@@
 
