@@ -598,7 +598,10 @@ footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.05);padding
             <option>Sonstige Dienstleistung</option>
           </select>
         </div>
-        <div class="fg"><label>Adresse</label><input type="text" name="address" placeholder="Musterstraße 1, 80331 München"></div>
+        <div class="fg-row">
+          <div class="fg"><label>Stadt / Ort *</label><input type="text" name="city" required placeholder="München"></div>
+          <div class="fg"><label>Adresse (optional)</label><input type="text" name="address" placeholder="Musterstraße 1"></div>
+        </div>
         <div class="fg"><label>Was bieten Sie an?</label><textarea name="description" placeholder="z.B. Malerbetrieb für Innen- und Außenarbeiten, seit 15 Jahren in München..."></textarea></div>
         <button type="submit" class="form-submit">Kostenlose Vorschau anfordern →</button>
         <p class="form-note">Ihre Vorschau ist in 48 Stunden fertig · Keine Zahlung nötig · Unverbindlich</p>
