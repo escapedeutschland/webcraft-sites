@@ -570,10 +570,8 @@ footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.05);padding
       </div>
     </div>
     <div class="form-box reveal-r">
-      <form action="https://formsubmit.co/maximechristalle@gmail.com" method="POST">
-        <input type="hidden" name="_subject" value="Neue Website-Anfrage – WebCraft">
-        <input type="hidden" name="_next" value="https://escapedeutschland.github.io/webcraft-agentur">
-        <input type="hidden" name="_captcha" value="false">
+      <form action="https://webcraft-lead.netlify.app/.netlify/functions/lead" method="POST">
+        <input type="text" name="company_website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" aria-hidden="true">
         <div class="fg-row">
           <div class="fg"><label>Ihr Name *</label><input type="text" name="name" required placeholder="Max Mustermann"></div>
           <div class="fg"><label>Firmenname *</label><input type="text" name="business" required placeholder="Mustermann GmbH"></div>
