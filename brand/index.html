@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WebCraft — Brand Kit</title>
+<link rel="icon" href="favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0f172a;--muted:#64748b;--line:#e7ebf2}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Sora',system-ui,sans-serif;background:#f4f6fb;color:var(--ink);padding:40px}
+  h1{font-size:30px;font-weight:800}
+  .sub{color:var(--muted);font-size:14px;margin:4px 0 30px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px 28px;margin-bottom:24px;max-width:980px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+  h2{font-size:18px;margin-bottom:4px}
+  .h-sub{color:var(--muted);font-size:12.5px;margin-bottom:20px}
+  .grid{display:flex;gap:24px;flex-wrap:wrap}
+  .v{display:flex;flex-direction:column;align-items:center;gap:10px;width:150px}
+  .prev{width:120px;height:120px;border-radius:24px;display:flex;align-items:center;justify-content:center;background-image:linear-gradient(45deg,#eef2f7 25%,transparent 25%),linear-gradient(-45deg,#eef2f7 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eef2f7 75%),linear-gradient(-45deg,transparent 75%,#eef2f7 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+  .prev img{width:120px;height:120px}
+  .vn{font-weight:700;font-size:13px}
+  .dl{display:flex;gap:8px}
+  .dl a{font-size:11px;font-weight:700;color:#2563eb;text-decoration:none;border:1px solid #bfdbfe;background:#eff6ff;padding:4px 10px;border-radius:7px}
+  .dl a:hover{background:#dbeafe}
+  .lockwrap{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;justify-content:center}
+  .lockwrap img{max-width:100%;height:auto}
+  .note{color:var(--muted);font-size:12.5px;line-height:1.7;margin-top:8px}
+  .note b{color:var(--ink)}
+</style></head>
+<body>
+  <h1>WebCraft — Brand Kit</h1>
+  <div class="sub">Logo A „Browser &amp; Aufschwung" · Markenfarbe Blau→Cyan · Hauptvariante: <b>Verlauf</b>. Rechtsklick → „Speichern unter" oder Download-Button.</div>
+
+  <div class="card">
+    <h2>Icon-Varianten</h2>
+    <div class="h-sub">Alle in der Markenfarbe. PNGs sind transparent (gerundete Ecken). Hauptvariante = Verlauf.</div>
+    <div class="grid">
+      <div class="v"><div class="prev"><img src="webcraft-icon-verlauf-1000.png"></div><div class="vn">Verlauf ★</div><div class="dl"><a href="webcraft-icon-verlauf.svg" download>SVG</a><a href="webcraft-icon-verlauf-1000.png" download>PNG</a></div></div>
+      <div class="v"><div class="prev"><img src="webcraft-icon-navy-1000.png"></div><div class="vn">Navy</div><div class="dl"><a href="webcraft-icon-navy.svg" download>SVG</a><a href="webcraft-icon-navy-1000.png" download>PNG</a></div></div>
+      <div class="v"><div class="prev"><img src="webcraft-icon-blau-1000.png"></div><div class="vn">Einfarbig</div><div class="dl"><a href="webcraft-icon-blau.svg" download>SVG</a><a href="webcraft-icon-blau-1000.png" download>PNG</a></div></div>
+      <div class="v"><div class="prev" style="background:#0b1020"><img src="webcraft-icon-weiss-1000.png"></div><div class="vn">Auf Weiß / hell</div><div class="dl"><a href="webcraft-icon-weiss.svg" download>SVG</a><a href="webcraft-icon-weiss-1000.png" download>PNG</a></div></div>
+    </div>
+    <div class="note"><b>Wann was:</b> <b>Verlauf</b> = Standard (Instagram, E-Mail-Profil, überall). <b>Navy</b> = auf dunklem Grund. <b>Einfarbig</b> = wenn schlicht/ein Ton gewünscht (z. B. Stempel, Fax, einfarbiger Druck). <b>Auf Weiß / hell</b> = für helle Flächen ohne Kachel (Dokumente, Website-Inhalt). Die „Auf Weiß"-Vorschau steht hier auf Dunkel, damit man die weiße Grafik sieht.</div>
+  </div>
+
+  <div class="card">
+    <h2>Schriftzug (Lockup)</h2>
+    <div class="h-sub">Für E-Mail-Signatur, Website-Header, Briefkopf. Transparenter Hintergrund.</div>
+    <div class="lockwrap"><img src="webcraft-lockup.png" alt="WebCraft"></div>
+    <div class="dl" style="margin-top:14px"><a href="webcraft-lockup.png" download>PNG (transparent)</a></div>
+  </div>
+
+  <div class="card">
+    <h2>Profilbild &amp; Favicon</h2>
+    <div class="h-sub">Fertige Größen für Profilbilder + Website-Favicon (Verlauf).</div>
+    <div class="dl">
+      <a href="webcraft-icon-verlauf-1000.png" download>Profil 1000×1000</a>
+      <a href="webcraft-icon-verlauf-400.png" download>Profil 400×400</a>
+      <a href="favicon-64.png" download>Favicon 64</a>
+      <a href="favicon-32.png" download>Favicon 32</a>
+    </div>
+    <div class="note">Für Instagram/E-Mail-Profil: <b>Profil 1000×1000</b> hochladen. Für die Website: <b>favicon-32/64</b> als Favicon einbinden.</div>
+  </div>
+
+</body></html>
