@@ -146,8 +146,8 @@ function karte(l){return `<div class="card">
     <button class="btn cb" onclick="panel('cb')">🔁 Rückruf</button>
     <button class="btn skip" onclick="ueberspringen()">⏭ Überspringen</button>
   </div>
-  <div class="panel" id="p_int"><label>E-Mail des Kunden (Website wird automatisch gebaut &amp; als Vorschau gesendet)</label>
-    <input id="email" type="email" placeholder="kunde@betrieb.de"><button onclick="ergebnis('interessiert')">Website bauen &amp; Vorschau senden →</button></div>
+  <div class="panel" id="p_int"><label>E-Mail des Kunden (das Büro verschickt die fertige Website-Vorschau)</label>
+    <input id="email" type="email" placeholder="kunde@betrieb.de"><button onclick="ergebnis('interessiert')">An das Büro übermitteln →</button></div>
   <div class="panel" id="p_cb"><label>Rückruf-Termin</label>
     <input id="callback" type="datetime-local"><button onclick="ergebnis('rueckruf')">Rückruf speichern →</button></div>
   <textarea id="notiz" placeholder="Notiz zum Gespräch (optional)…"></textarea>
@@ -182,7 +182,7 @@ async function ergebnis(art){
         stadt:l.stadt||'', branche:l.branche||'', email:email, status:'neu',
         created_at:new Date().toISOString()});
       beobachteJob(job, l.firma);
-      toast('✅ Auftrag erstellt — Website wird gebaut…');
+      toast('✅ An das Büro übermittelt');
     } else { toast('Gespeichert'); await render(); }
     if(art==='interessiert'){ /* Karte bleibt stehen bis Job-Status da ist */ }
   }catch(e){ toast('Fehler: '+(e.code||e.message)); }
@@ -190,13 +190,13 @@ async function ergebnis(art){
 
 function beobachteJob(ref, firma){
   const box=$('#jobmsg'); if(!box) return;
-  box.className='jobmsg zeig jm-lauf'; box.textContent='⚙️ Website für '+firma+' wird gebaut & versendet… (dauert 1–3 Min., du kannst weitertelefonieren)';
+  box.className='jobmsg zeig jm-lauf'; box.textContent='📤 An das Büro übermittelt — die Vorschau für '+firma+' geht gleich raus. Du kannst direkt weitertelefonieren.';
   if(JOBUNSUB)JOBUNSUB();
   JOBUNSUB=ref.onSnapshot(async s=>{
     const j=s.data()||{};
     if(j.status==='fertig'){ box.className='jobmsg zeig jm-ok'; box.textContent='✅ Vorschau versendet an '+j.email; toast('✅ '+firma+': Vorschau versendet');
       JOBUNSUB(); setTimeout(async()=>{await ladeLeads();render();},2500); }
-    if(j.status==='fehler'){ box.className='jobmsg zeig jm-err'; box.textContent='⚠️ Fehler beim Bauen — Maxime wurde es protokolliert: '+(j.error||'');
+    if(j.status==='fehler'){ box.className='jobmsg zeig jm-err'; box.textContent='⚠️ Konnte gerade nicht verarbeitet werden — das Büro kümmert sich darum. Telefonier einfach weiter.';
       JOBUNSUB(); setTimeout(async()=>{await ladeLeads();render();},4000); }
   });
 }
