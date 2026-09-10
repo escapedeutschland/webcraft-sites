@@ -74,10 +74,11 @@ async function dashboard(u){
   $('#app').innerHTML=`<div class="top"><div class="logo"></div><b>Telefonzentrale — Admin</b>
     <span class="who">${esc(u.email)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
     <div class="wrap" id="inhalt">Lade…</div>`;
-  const [telSnap, salesSnap, fehlerSnap] = await Promise.all([
+  const [telSnap, salesSnap, fehlerSnap, bewerberSnap] = await Promise.all([
     db.collection('wc_telefonisten').get(),
     db.collection('wc_sales').get(),
-    db.collection('wc_jobs').where('status','==','fehler').get()
+    db.collection('wc_jobs').where('status','==','fehler').get(),
+    db.collection('wc_bewerber').get()
   ]);
   const tels=telSnap.docs.map(d=>({uid:d.id,...d.data()}));
   const sales=salesSnap.docs.map(d=>({id:d.id,...d.data()}));
@@ -123,7 +124,15 @@ async function dashboard(u){
     ${fehlerSnap.size?`<h2>⚠️ Fehlgeschlagene Bau-Aufträge (${fehlerSnap.size})</h2>
     <div class="tableswrap"><table><tr><th>Firma</th><th>E-Mail</th><th>Fehler</th><th>Zeit</th></tr>
     ${fehlerSnap.docs.map(d=>{const j=d.data();return `<tr><td>${esc(j.firma)}</td><td>${esc(j.email)}</td><td>${esc((j.error||'').slice(0,90))}</td><td>${esc((j.created_at||'').slice(0,16).replace('T',' '))}</td></tr>`;}).join('')}</table></div>`:''}
-    <p class="hint" style="margin-top:22px">Verwaltung (Telefonist anlegen, Leads zuteilen, Provisions-Report) läuft über die Tools auf deinem PC: <code>Desktop\\WebCraft\\Telefonzentrale\\tools\\</code></p>`;
+    ${(()=>{const b=bewerberSnap.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>(x.slot||'').localeCompare(y.slot||''));
+      const heute=new Date().toLocaleDateString('sv-SE');
+      return b.length?`<h2>📅 Bewerber-Termine (${b.filter(x=>(x.slot||'')>=heute).length} anstehend)</h2>
+      <div class="tableswrap"><table><tr><th>Termin (PY-Zeit)</th><th>Name</th><th>WhatsApp</th><th>Notiz</th></tr>
+      ${b.map(x=>{const [t,u]=(x.slot||'').split('_');const vorbei=(x.slot||'')<heute;
+        return `<tr style="${vorbei?'opacity:.45':''}"><td><b>${esc(t)}</b> ${esc((u||'').replace('-',':'))}</td>
+        <td>${esc(x.name)}</td><td><a href="https://wa.me/${esc((x.telefon||'').replace(/[^\d]/g,''))}" target="_blank">${esc(x.telefon)}</a></td>
+        <td class="hint">${esc((x.nachricht||'').slice(0,80))}</td></tr>`;}).join('')}</table></div>`:'';})()}
+    <p class="hint" style="margin-top:22px">Bewerber-Buchungsseite: <a href="https://escapedeutschland.github.io/webcraft-sites/telefonist-termin/" target="_blank">…/telefonist-termin/</a> · Verwaltung (Telefonist anlegen, Leads zuteilen, Provisions-Report) läuft über die Tools auf deinem PC: <code>Desktop\\WebCraft\\Telefonzentrale\\tools\\</code></p>`;
 }
 </script>
 </body>
