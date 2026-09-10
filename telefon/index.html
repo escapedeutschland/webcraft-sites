@@ -189,6 +189,9 @@ async function ergebnis(art){
 }
 
 function beobachteJob(ref, firma){
+  // Doppel-Klick-Schutz: solange der Auftrag laeuft, alle Buttons dieses Leads sperren
+  document.querySelectorAll('.btn,.panel button').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
   const box=$('#jobmsg'); if(!box) return;
   box.className='jobmsg zeig jm-lauf'; box.textContent='📤 An das Büro übermittelt — die Vorschau für '+firma+' geht gleich raus. Du kannst direkt weitertelefonieren.';
   if(JOBUNSUB)JOBUNSUB();
