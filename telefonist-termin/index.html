@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>WebCraft · Kennenlern-Termin buchen</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--line:#e2e8f0;--muted:#64748b;--blau:#2563eb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
+.hero{background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;padding:34px 20px;text-align:center}
+.hero .brand{display:inline-block;background:rgba(255,255,255,.15);padding:6px 16px;border-radius:50px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.hero h1{font-size:1.45rem;max-width:560px;margin:0 auto}
+.hero p{opacity:.92;margin-top:8px;font-size:14.5px}
+.wrap{max-width:560px;margin:-18px auto 0;padding:0 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 10px 30px rgba(15,23,42,.08)}
+h2{font-size:15px;margin:18px 0 10px}
+h2:first-child{margin-top:0}
+.tage{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.tag{border:1.5px solid var(--line);border-radius:12px;padding:10px 8px;min-width:74px;text-align:center;cursor:pointer;background:#fff;flex:0 0 auto}
+.tag b{display:block;font-size:15px}
+.tag span{font-size:11px;color:var(--muted)}
+.tag.an{border-color:var(--blau);background:#eff6ff}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{border:1.5px solid var(--line);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;background:#fff;font-size:14px;font-weight:600}
+.slot.an{border-color:var(--blau);background:var(--blau);color:#fff}
+.slot.weg{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:15px;margin-bottom:11px;font-family:inherit}
+button{width:100%;background:var(--blau);color:#fff;border:0;border-radius:11px;padding:14px;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
+.err{color:#b91c1c;font-size:13px;min-height:18px;margin-top:8px;text-align:center}
+.ok{text-align:center;padding:30px 10px}
+.ok .big{font-size:44px}
+.hp{position:absolute;left:-9999px;opacity:0}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="brand">WebCraft</div>
+  <h1>Kennenlern-Gespräch buchen 📞</h1>
+  <p>15–20 Minuten per WhatsApp-Anruf — wähle einfach, wann es dir passt.<br>Alle Zeiten: Paraguay-Zeit.</p>
+</div>
+<div class="wrap"><div class="card" id="card">
+  <h2>1. Tag wählen</h2>
+  <div class="tage" id="tage"></div>
+  <h2>2. Uhrzeit wählen</h2>
+  <div class="slots" id="slots"></div>
+  <h2>3. Deine Daten</h2>
+  <input id="name" placeholder="Dein Name" maxlength="80">
+  <input id="telefon" placeholder="Deine WhatsApp-Nummer (mit Ländervorwahl, z. B. +595…)" maxlength="40">
+  <textarea id="nachricht" rows="2" maxlength="500" placeholder="Optional: kurz zu dir (Erfahrung, wo du wohnst …)"></textarea>
+  <input class="hp" id="firma" tabindex="-1" autocomplete="off">
+  <button id="btn" onclick="buchen()" disabled>Termin verbindlich buchen →</button>
+  <div class="err" id="err"></div>
+  <div class="hint">Deine Daten werden nur zur Terminvereinbarung genutzt und nicht weitergegeben.</div>
+</div></div>
+<script>
+firebase.initializeApp({ apiKey: "AIzaSyC_nxQL9Jo0EPUCtyI8QvnnRVKRBPbREKU", authDomain: "paraguay-app-8beb3.firebaseapp.com", projectId: "paraguay-app-8beb3" });
+const db = firebase.firestore();
+const $=s=>document.querySelector(s);
+
+// ===== KONFIGURATION (einfach anpassen) =====
+const SLOTS = ['09:00','09:30','10:00','10:30','11:00','16:00','16:30','17:00']; // PY-Zeit
+const ANZAHL_TAGE = 10;          // wie viele Werktage im Voraus buchbar
+const WOCHENTAGE = [1,2,3,4,5];  // Mo–Fr (0=So)
+// ============================================
+
+const WT=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const MON=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+let TAGE=[], TAGWAHL=null, SLOTWAHL=null, BELEGT=new Set();
+
+(function(){
+  const d=new Date(); d.setDate(d.getDate()+1);          // fruehestens morgen
+  while(TAGE.length<ANZAHL_TAGE){
+    if(WOCHENTAGE.includes(d.getDay())) TAGE.push(new Date(d));
+    d.setDate(d.getDate()+1);
+  }
+})();
+const tagId=d=>d.toLocaleDateString('sv-SE');
+
+async function ladeBelegte(){
+  BELEGT=new Set();
+  try{
+    const von=tagId(TAGE[0]), bis=tagId(TAGE[TAGE.length-1])+'_99';
+    const q=await db.collection('wc_termine')
+      .where(firebase.firestore.FieldPath.documentId(),'>=',von)
+      .where(firebase.firestore.FieldPath.documentId(),'<=',bis).get();
+    q.docs.forEach(d=>BELEGT.add(d.id));
+  }catch(e){/* Anzeige ohne Belegt-Info, Konflikt faengt die Buchung ab */}
+}
+
+function zeigTage(){
+  $('#tage').innerHTML=TAGE.map((d,i)=>`<div class="tag${TAGWAHL===i?' an':''}" onclick="waehleTag(${i})">
+    <span>${WT[d.getDay()]}</span><b>${d.getDate()}.</b><span>${MON[d.getMonth()]}</span></div>`).join('');
+}
+function zeigSlots(){
+  if(TAGWAHL===null){ $('#slots').innerHTML='<div class="hint" style="grid-column:1/-1">Erst einen Tag wählen</div>'; return; }
+  const id=tagId(TAGE[TAGWAHL]);
+  $('#slots').innerHTML=SLOTS.map(s=>{
+    const voll=BELEGT.has(id+'_'+s.replace(':','-'));
+    return `<div class="slot${SLOTWAHL===s?' an':''}${voll?' weg':''}" ${voll?'':`onclick="waehleSlot('${s}')"`}>${s}</div>`;
+  }).join('');
+  pruef();
+}
+function waehleTag(i){TAGWAHL=i;SLOTWAHL=null;zeigTage();zeigSlots();}
+function waehleSlot(s){SLOTWAHL=s;zeigSlots();}
+function pruef(){$('#btn').disabled=!(TAGWAHL!==null&&SLOTWAHL);}
+
+async function buchen(){
+  const name=$('#name').value.trim(), tel=$('#telefon').value.trim();
+  if($('#firma').value){ return; }                                   // Honeypot
+  if(!name){ $('#err').textContent='Bitte Namen eintragen.'; return; }
+  if(!/^\+?[\d\s\-()]{8,}$/.test(tel)){ $('#err').textContent='Bitte gültige WhatsApp-Nummer mit Vorwahl eintragen.'; return; }
+  $('#btn').disabled=true; $('#err').textContent='';
+  const slotId=tagId(TAGE[TAGWAHL])+'_'+SLOTWAHL.replace(':','-');
+  try{
+    // 1. Slot exklusiv belegen (schlaegt fehl, wenn schon vergeben)
+    await db.collection('wc_termine').doc(slotId).set({belegt:true, ts:new Date().toISOString()});
+  }catch(e){
+    $('#err').textContent='Dieser Termin wurde gerade vergeben — bitte einen anderen wählen.';
+    await ladeBelegte(); zeigSlots(); return;
+  }
+  try{
+    // 2. Kontaktdaten hinterlegen
+    await db.collection('wc_bewerber').add({name:name, telefon:tel, slot:slotId,
+      nachricht:$('#nachricht').value.trim(), ts:new Date().toISOString()});
+    // 3. Benachrichtigung an Maxime (bestehender Mail-Endpunkt)
+    const fd=new FormData();
+    fd.append('empfaenger','maximechristalle@gmail.com');
+    fd.append('firma','Telefonist-Bewerbung');
+    fd.append('name',name); fd.append('email','');
+    fd.append('phone',tel);
+    fd.append('message',`Neuer Kennenlern-Termin: ${slotId.replace('_',' ').replace('-',':')} (PY-Zeit)\nName: ${name}\nWhatsApp: ${tel}\n${$('#nachricht').value.trim()}`);
+    fetch('https://script.google.com/macros/s/AKfycbyyF6cRQmxbjObnNjjmADQosN8wXRkTiEiwEQSU9yb5Q_k5EaS_kO82Z25hMLk3H1sUyA/exec',{method:'POST',mode:'no-cors',body:fd});
+  }catch(e){/* Slot ist belegt, Termin steht — Details kommen zur Not telefonisch */}
+  const d=TAGE[TAGWAHL];
+  $('#card').innerHTML=`<div class="ok"><div class="big">✅</div>
+    <h2 style="font-size:19px;margin:10px 0 6px">Termin steht!</h2>
+    <p style="color:#334155">${WT[d.getDay()]}, ${d.getDate()}. ${MON[d.getMonth()]} um <b>${SLOTWAHL} Uhr</b> (Paraguay-Zeit)</p>
+    <p style="color:#64748b;font-size:14px;margin-top:12px">Maxime ruft dich dann per WhatsApp an: <b>${tel.replace(/[<>&]/g,'')}</b>. Bis dahin!</p></div>`;
+}
+
+(async()=>{ await ladeBelegte(); zeigTage(); zeigSlots(); })();
+</script>
+</body>
+</html>
