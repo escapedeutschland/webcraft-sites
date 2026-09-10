@@ -17,7 +17,12 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:
 .top b{font-size:16px}.top .who{margin-left:auto;color:var(--muted);font-size:13px}
 .top button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12.5px}
 .wrap{max-width:680px;margin:0 auto;padding:18px 14px 60px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;color:#475569}
+.chip.an{background:var(--blau);border-color:var(--blau);color:#fff}
+.wunsch{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:12.5px;color:var(--muted)}
+.wunsch select{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px;background:#fff}
 .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 8px;text-align:center}
 .stat b{display:block;font-size:21px}.stat span{font-size:10.5px;color:var(--muted)}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
@@ -64,7 +69,17 @@ textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px
 firebase.initializeApp({ apiKey: "AIzaSyC_nxQL9Jo0EPUCtyI8QvnnRVKRBPbREKU", authDomain: "paraguay-app-8beb3.firebaseapp.com", projectId: "paraguay-app-8beb3" });
 const auth = firebase.auth(), db = firebase.firestore();
 const FV = firebase.firestore.FieldValue;
-let UID=null, NAME='', LEADS=[], LEAD=null, SKIP=[], JOBUNSUB=null;
+let UID=null, NAME='', LEADS=[], LEAD=null, SKIP=[], JOBUNSUB=null, FILTER='', WUNSCH='';
+
+// Branchen-Gruppen (muss zu lead_pool.py passen)
+const GRUPPEN={
+  handwerk:{label:'🔨 Handwerk',kws:['maler','fliesen','elektr','klempn','sanitär','sanitaer','heizung','schrein','tischl','dach','maurer','bau','schloss','metall','garten','landschaft','reinig','schneider']},
+  kfz:{label:'🚗 Kfz',kws:['kfz','auto','werkstatt','reifen','lack']},
+  beauty:{label:'💇 Friseur/Beauty',kws:['friseur','frisör','barbier','kosmetik','nagel','beauty']},
+  blumen:{label:'💐 Blumen',kws:['blumen','florist']},
+  gastro:{label:'🍞 Gastro/Lebensmittel',kws:['gast','restaurant','café','cafe','imbiss','pizz','bistro','bäck','baeck','metzg','fleisch','konditorei','eis']}};
+function gruppeVon(branche){const b=(branche||'').toLowerCase();
+  for(const [k,g] of Object.entries(GRUPPEN)) if(g.kws.some(w=>b.includes(w))) return k; return 'sonst';}
 
 const $=s=>document.querySelector(s);
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -89,7 +104,7 @@ auth.onAuthStateChanged(async u=>{
   try{
     const t=await db.collection('wc_telefonisten').doc(UID).get();
     if(!t.exists){ loginView('Dieses Konto ist nicht als Telefonist freigeschaltet.'); auth.signOut(); return; }
-    NAME=t.data().name||u.email;
+    NAME=t.data().name||u.email; WUNSCH=t.data().wunsch_branchen||'';
   }catch(e){ loginView('Kein Telefonisten-Zugang ('+(e.code||e.message)+')'); auth.signOut(); return; }
   await ladeLeads(); render();
 });
@@ -98,9 +113,10 @@ async function ladeLeads(){
   const q=await db.collection('wc_leads').where('telefonist','==',UID).limit(500).get();
   LEADS=q.docs.map(d=>({id:d.id,...d.data()}));
 }
-function offene(){
+function offene(alle){
   const ordnung={'Hoch':0,'Mittel':1};
   return LEADS.filter(l=>['offen'].includes(l.status)&&!SKIP.includes(l.id))
+              .filter(l=>alle||!FILTER||gruppeVon(l.branche)===FILTER)
               .sort((a,b)=>(ordnung[a.prioritaet]??2)-(ordnung[b.prioritaet]??2));
 }
 function wiedervorlage(){ return LEADS.filter(l=>['rueckruf','keine_antwort'].includes(l.status)); }
@@ -112,17 +128,28 @@ async function statsHeute(){
 
 async function render(){
   const st=await statsHeute();
-  const off=offene(); LEAD=off[0]||null;
+  const alleOff=offene(true), off=offene(); LEAD=off[0]||null;
   const wv=wiedervorlage();
+  const zaehl={}; alleOff.forEach(l=>{const g=gruppeVon(l.branche); zaehl[g]=(zaehl[g]||0)+1;});
+  const chips=[`<span class="chip${FILTER?'':' an'}" onclick="setFilter('')">Alle (${alleOff.length})</span>`]
+    .concat(Object.entries(GRUPPEN).filter(([k])=>zaehl[k]).map(([k,g])=>
+      `<span class="chip${FILTER===k?' an':''}" onclick="setFilter('${k}')">${g.label} (${zaehl[k]})</span>`))
+    .concat(zaehl['sonst']?[`<span class="chip${FILTER==='sonst'?' an':''}" onclick="setFilter('sonst')">Sonstige (${zaehl['sonst']})</span>`]:[]);
   $('#app').innerHTML=`
   <div class="top"><div class="logo"></div><b>Telefon-Cockpit</b><span class="who">${esc(NAME)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
   <div class="wrap">
     <div class="stats">
-      <div class="stat"><b>${off.length}</b><span>Offen</span></div>
+      <div class="stat"><b>${off.length}</b><span>Offen${FILTER?' (Filter)':''}</span></div>
       <div class="stat"><b>${st.anrufe||0}</b><span>Heute angerufen</span></div>
       <div class="stat"><b>${st.interessiert||0}</b><span>Interessiert</span></div>
       <div class="stat"><b>${st.kein_interesse||0}</b><span>Kein Interesse</span></div>
     </div>
+    <div class="chips">${chips.join('')}</div>
+    <div class="wunsch">Nachschub-Wunsch (welche Branchen du bevorzugt bekommst):
+      <select onchange="setWunsch(this.value)">
+        <option value=""${WUNSCH?'':' selected'}>Gemischt (alle)</option>
+        ${Object.entries(GRUPPEN).map(([k,g])=>`<option value="${k}"${WUNSCH===k?' selected':''}>${g.label}</option>`).join('')}
+      </select></div>
     <div id="main">${LEAD?karte(LEAD):`<div class="card empty"><div style="font-size:40px">🎉</div><h2>Liste abgearbeitet!</h2><p style="color:var(--muted);margin-top:8px">Melde dich bei Maxime für neue Leads.</p></div>`}</div>
     <div class="wv" id="wv">${wv.length?`<h3>🔁 Wiedervorlage (${wv.length})</h3>`+wv.map(w=>`
       <div class="wvrow"><div><div class="l">${esc(w.firma)}</div><div class="s">${w.status==='rueckruf'?'Rückruf'+(w.callback?' '+esc(w.callback):''):'Keine Antwort'} · ${esc(w.telefon)}</div></div>
@@ -155,6 +182,12 @@ function karte(l){return `<div class="card">
 </div>`;}
 
 function panel(k){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));const p=$('#p_'+k);if(p)p.classList.add('show');}
+function setFilter(f){FILTER=f;render();}
+async function setWunsch(w){
+  try{ await db.collection('wc_telefonisten').doc(UID).update({wunsch_branchen:w}); WUNSCH=w;
+       toast(w?'Nachschub-Wunsch gespeichert':'Nachschub: gemischt'); }
+  catch(e){ toast('Konnte Wunsch nicht speichern: '+(e.code||e.message)); }
+}
 function ueberspringen(){if(LEAD){SKIP.push(LEAD.id);render();}}
 function nochmal(id){const l=LEADS.find(x=>x.id===id);if(!l)return;SKIP=SKIP.filter(x=>x!==id);l.status='offen';LEADS=[l,...LEADS.filter(x=>x.id!==id)];render();}
 
