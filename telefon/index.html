@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>WebCraft · Telefon-Cockpit</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--line:#e2e8f0;--muted:#64748b;--blau:#2563eb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;gap:12px}
+.logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#2563eb,#06b6d4)}
+.top b{font-size:16px}.top .who{margin-left:auto;color:var(--muted);font-size:13px}
+.top button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12.5px}
+.wrap{max-width:680px;margin:0 auto;padding:18px 14px 60px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 8px;text-align:center}
+.stat b{display:block;font-size:21px}.stat span{font-size:10.5px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+.firma{font-size:25px;font-weight:800;line-height:1.15}
+.sub{color:var(--muted);font-size:14px;margin-top:4px}
+.ap{margin-top:8px;font-size:15px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 12px;display:inline-block}
+.tel{font-size:30px;font-weight:800;margin:16px 0 4px}
+.tel a{color:inherit;text-decoration:none}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.tag{font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;background:#fef9c3;color:#a16207}
+.lnk{font-size:12.5px;color:var(--blau);text-decoration:none;border:1px solid #dbeafe;background:#eff6ff;padding:5px 11px;border-radius:8px}
+.warum{margin-top:12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13.5px;color:#475569}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
+.btn{border:0;border-radius:10px;padding:13px 10px;font-size:14px;font-weight:700;cursor:pointer}
+.yes{background:#16a34a;color:#fff}.no{background:#fff;color:#b91c1c;border:1.5px solid #fecaca}
+.wait{background:#fff;color:#c2410c;border:1.5px solid #fed7aa}.cb{background:#fff;color:#1d4ed8;border:1.5px solid #bfdbfe}
+.skip{background:#f8fafc;color:#475569;border:1.5px solid var(--line);grid-column:1/-1}
+.panel{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:16px}
+.panel.show{display:block}
+.panel label{font-size:12.5px;color:var(--muted);display:block;margin-bottom:6px}
+.panel input{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px;font-size:15px;margin-bottom:10px}
+.panel button{width:100%;background:var(--blau);color:#fff;border:0;border-radius:9px;padding:12px;font-weight:700;font-size:14px;cursor:pointer}
+textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:14px;margin-top:12px;min-height:56px;font-family:inherit}
+.jobmsg{margin-top:12px;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;display:none}
+.jobmsg.zeig{display:block}
+.jm-lauf{background:#eff6ff;color:#1d4ed8}.jm-ok{background:#f0fdf4;color:#15803d}.jm-err{background:#fef2f2;color:#b91c1c}
+.empty{text-align:center;padding:50px 20px}
+.login{max-width:360px;margin:70px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px}
+.login h1{font-size:19px;margin-bottom:18px}
+.login input{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px;font-size:15px;margin-bottom:11px}
+.login button{width:100%;background:var(--blau);color:#fff;border:0;border-radius:9px;padding:13px;font-weight:700;font-size:15px;cursor:pointer}
+.err{color:#b91c1c;font-size:13px;margin-top:10px;min-height:18px}
+.wv{margin-top:22px}.wv h3{font-size:14px;color:var(--muted);margin-bottom:8px}
+.wvrow{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:13.5px}
+.wvrow .l{font-weight:700}.wvrow .s{color:var(--muted);font-size:12px}
+.wvrow button{margin-left:auto;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:10px;padding:11px 20px;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+firebase.initializeApp({ apiKey: "AIzaSyC_nxQL9Jo0EPUCtyI8QvnnRVKRBPbREKU", authDomain: "paraguay-app-8beb3.firebaseapp.com", projectId: "paraguay-app-8beb3" });
+const auth = firebase.auth(), db = firebase.firestore();
+const FV = firebase.firestore.FieldValue;
+let UID=null, NAME='', LEADS=[], LEAD=null, SKIP=[], JOBUNSUB=null;
+
+const $=s=>document.querySelector(s);
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const heute=()=>new Date().toLocaleDateString('sv-SE');
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
+
+function loginView(msg){
+  $('#app').innerHTML=`<div class="login"><h1>📞 WebCraft Telefon-Cockpit</h1>
+    <input id="em" type="email" placeholder="E-Mail" autocomplete="username">
+    <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password">
+    <button onclick="doLogin()">Anmelden</button><div class="err">${esc(msg||'')}</div></div>`;
+  $('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+}
+async function doLogin(){
+  try{ await auth.signInWithEmailAndPassword($('#em').value.trim(), $('#pw').value); }
+  catch(e){ loginView('Anmeldung fehlgeschlagen: '+(e.code||e.message)); }
+}
+
+auth.onAuthStateChanged(async u=>{
+  if(!u){ loginView(); return; }
+  UID=u.uid;
+  try{
+    const t=await db.collection('wc_telefonisten').doc(UID).get();
+    if(!t.exists){ loginView('Dieses Konto ist nicht als Telefonist freigeschaltet.'); auth.signOut(); return; }
+    NAME=t.data().name||u.email;
+  }catch(e){ loginView('Kein Telefonisten-Zugang ('+(e.code||e.message)+')'); auth.signOut(); return; }
+  await ladeLeads(); render();
+});
+
+async function ladeLeads(){
+  const q=await db.collection('wc_leads').where('telefonist','==',UID).limit(500).get();
+  LEADS=q.docs.map(d=>({id:d.id,...d.data()}));
+}
+function offene(){
+  const ordnung={'Hoch':0,'Mittel':1};
+  return LEADS.filter(l=>['offen'].includes(l.status)&&!SKIP.includes(l.id))
+              .sort((a,b)=>(ordnung[a.prioritaet]??2)-(ordnung[b.prioritaet]??2));
+}
+function wiedervorlage(){ return LEADS.filter(l=>['rueckruf','keine_antwort'].includes(l.status)); }
+
+async function statsHeute(){
+  try{ const d=await db.collection('wc_telefonisten').doc(UID).collection('tage').doc(heute()).get();
+       return d.exists?d.data():{}; }catch(e){ return {}; }
+}
+
+async function render(){
+  const st=await statsHeute();
+  const off=offene(); LEAD=off[0]||null;
+  const wv=wiedervorlage();
+  $('#app').innerHTML=`
+  <div class="top"><div class="logo"></div><b>Telefon-Cockpit</b><span class="who">${esc(NAME)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b>${off.length}</b><span>Offen</span></div>
+      <div class="stat"><b>${st.anrufe||0}</b><span>Heute angerufen</span></div>
+      <div class="stat"><b>${st.interessiert||0}</b><span>Interessiert</span></div>
+      <div class="stat"><b>${st.kein_interesse||0}</b><span>Kein Interesse</span></div>
+    </div>
+    <div id="main">${LEAD?karte(LEAD):`<div class="card empty"><div style="font-size:40px">🎉</div><h2>Liste abgearbeitet!</h2><p style="color:var(--muted);margin-top:8px">Melde dich bei Maxime für neue Leads.</p></div>`}</div>
+    <div class="wv" id="wv">${wv.length?`<h3>🔁 Wiedervorlage (${wv.length})</h3>`+wv.map(w=>`
+      <div class="wvrow"><div><div class="l">${esc(w.firma)}</div><div class="s">${w.status==='rueckruf'?'Rückruf'+(w.callback?' '+esc(w.callback):''):'Keine Antwort'} · ${esc(w.telefon)}</div></div>
+      <button onclick='nochmal("${w.id}")'>📞</button></div>`).join(''):''}</div>
+  </div>`;
+}
+
+function karte(l){return `<div class="card">
+  <div class="firma">${esc(l.firma)}</div>
+  <div class="sub">${esc(l.branche)}${l.stadt?' · '+esc(l.stadt):''}</div>
+  ${l.ansprechpartner?`<div class="ap">👤 Ansprechpartner: <b>${esc(l.ansprechpartner)}</b></div>`:''}
+  <div class="tel"><a href="tel:${esc((l.telefon||'').replace(/[^\d+]/g,''))}">${esc(l.telefon)||'—'}</a></div>
+  <div class="meta">${l.prioritaet?`<span class="tag">Priorität: ${esc(l.prioritaet)}</span>`:''}
+    ${l.maps?`<a class="lnk" href="${esc(l.maps)}" target="_blank">Google Maps ↗</a>`:''}
+    <a class="lnk" href="https://www.google.com/search?q=${encodeURIComponent('"'+l.firma+'" '+(l.stadt||'')+' Inhaber OR Geschäftsführer')}" target="_blank">🔍 Inhaber suchen ↗</a></div>
+  ${l.warum?`<div class="warum">💡 ${esc(l.warum)}</div>`:''}
+  <div class="row">
+    <button class="btn yes" onclick="panel('int')">✅ Interessiert</button>
+    <button class="btn no" onclick="ergebnis('kein_interesse')">❌ Kein Interesse</button>
+    <button class="btn wait" onclick="ergebnis('keine_antwort')">📵 Keine Antwort</button>
+    <button class="btn cb" onclick="panel('cb')">🔁 Rückruf</button>
+    <button class="btn skip" onclick="ueberspringen()">⏭ Überspringen</button>
+  </div>
+  <div class="panel" id="p_int"><label>E-Mail des Kunden (Website wird automatisch gebaut &amp; als Vorschau gesendet)</label>
+    <input id="email" type="email" placeholder="kunde@betrieb.de"><button onclick="ergebnis('interessiert')">Website bauen &amp; Vorschau senden →</button></div>
+  <div class="panel" id="p_cb"><label>Rückruf-Termin</label>
+    <input id="callback" type="datetime-local"><button onclick="ergebnis('rueckruf')">Rückruf speichern →</button></div>
+  <textarea id="notiz" placeholder="Notiz zum Gespräch (optional)…"></textarea>
+  <div class="jobmsg" id="jobmsg"></div>
+</div>`;}
+
+function panel(k){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));const p=$('#p_'+k);if(p)p.classList.add('show');}
+function ueberspringen(){if(LEAD){SKIP.push(LEAD.id);render();}}
+function nochmal(id){const l=LEADS.find(x=>x.id===id);if(!l)return;SKIP=SKIP.filter(x=>x!==id);l.status='offen';LEADS=[l,...LEADS.filter(x=>x.id!==id)];render();}
+
+async function zaehle(felder){
+  const ref=db.collection('wc_telefonisten').doc(UID).collection('tage').doc(heute());
+  const inc={}; felder.forEach(f=>inc[f]=FV.increment(1));
+  await ref.set(inc,{merge:true});
+}
+
+async function ergebnis(art){
+  if(!LEAD) return;
+  const notiz=($('#notiz')||{}).value||'', email=(($('#email')||{}).value||'').trim(), callback=($('#callback')||{}).value||'';
+  if(art==='interessiert' && !/.+@.+\..+/.test(email)){ toast('Bitte gültige E-Mail eingeben'); return; }
+  const l=LEAD;
+  try{
+    await db.collection('wc_leads').doc(l.id).update({
+      status:art, notiz:notiz, email:email, callback:callback,
+      versuche:FV.increment(1), updated_at:new Date().toISOString()});
+    await db.collection('wc_calls').add({telefonist:UID, lead:l.id, firma:l.firma,
+      aktion:art, ts:new Date().toISOString()});
+    await zaehle(['anrufe', art].concat(['kein_interesse','interessiert','rueckruf'].includes(art)?['erreicht']:[]));
+    l.status=art; l.email=email; l.callback=callback;
+    if(art==='interessiert'){
+      const job=await db.collection('wc_jobs').add({telefonist:UID, lead:l.id, firma:l.firma,
+        stadt:l.stadt||'', branche:l.branche||'', email:email, status:'neu',
+        created_at:new Date().toISOString()});
+      beobachteJob(job, l.firma);
+      toast('✅ Auftrag erstellt — Website wird gebaut…');
+    } else { toast('Gespeichert'); await render(); }
+    if(art==='interessiert'){ /* Karte bleibt stehen bis Job-Status da ist */ }
+  }catch(e){ toast('Fehler: '+(e.code||e.message)); }
+}
+
+function beobachteJob(ref, firma){
+  const box=$('#jobmsg'); if(!box) return;
+  box.className='jobmsg zeig jm-lauf'; box.textContent='⚙️ Website für '+firma+' wird gebaut & versendet… (dauert 1–3 Min., du kannst weitertelefonieren)';
+  if(JOBUNSUB)JOBUNSUB();
+  JOBUNSUB=ref.onSnapshot(async s=>{
+    const j=s.data()||{};
+    if(j.status==='fertig'){ box.className='jobmsg zeig jm-ok'; box.textContent='✅ Vorschau versendet an '+j.email; toast('✅ '+firma+': Vorschau versendet');
+      JOBUNSUB(); setTimeout(async()=>{await ladeLeads();render();},2500); }
+    if(j.status==='fehler'){ box.className='jobmsg zeig jm-err'; box.textContent='⚠️ Fehler beim Bauen — Maxime wurde es protokolliert: '+(j.error||'');
+      JOBUNSUB(); setTimeout(async()=>{await ladeLeads();render();},4000); }
+  });
+}
+</script>
+</body>
+</html>

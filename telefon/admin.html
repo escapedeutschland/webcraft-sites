@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>WebCraft · Telefonzentrale Admin</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--line:#e2e8f0;--muted:#64748b;--blau:#2563eb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:#0f172a}
+.top{background:#0f172a;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px}
+.logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#2563eb,#06b6d4)}
+.top .who{margin-left:auto;font-size:13px;color:#94a3b8}
+.top a{color:#94a3b8}
+.wrap{max-width:1020px;margin:0 auto;padding:20px 16px 70px}
+h2{font-size:16px;margin:26px 0 10px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px;text-align:center}
+.kpi b{display:block;font-size:24px}.kpi span{font-size:11px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+th{background:#f8fafc;text-align:left;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;padding:10px 13px;border-bottom:1px solid var(--line)}
+td{padding:11px 13px;border-bottom:1px solid #f1f5f9;font-size:13.5px}
+tr:last-child td{border-bottom:0}
+.pill{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px}
+.gruen{background:#f0fdf4;color:#15803d}.rot{background:#fef2f2;color:#b91c1c}.grau{background:#f1f5f9;color:#475569}
+.login{max-width:360px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px}
+.login h1{font-size:19px;margin-bottom:18px}
+.login input{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px;font-size:15px;margin-bottom:11px}
+.login button{width:100%;background:var(--blau);color:#fff;border:0;border-radius:9px;padding:13px;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:9px}
+.login .g{background:#fff;color:#0f172a;border:1px solid var(--line)}
+.err{color:#b91c1c;font-size:13px;min-height:18px}
+.tableswrap{overflow-x:auto}
+.hint{color:var(--muted);font-size:12.5px;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+firebase.initializeApp({ apiKey: "AIzaSyC_nxQL9Jo0EPUCtyI8QvnnRVKRBPbREKU", authDomain: "paraguay-app-8beb3.firebaseapp.com", projectId: "paraguay-app-8beb3" });
+const auth=firebase.auth(), db=firebase.firestore();
+const $=s=>document.querySelector(s);
+const esc=s=>(''+(s??'')).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const EUR=n=>(n||0).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
+const tagStr=d=>d.toLocaleDateString('sv-SE');
+
+function loginView(msg){
+  $('#app').innerHTML=`<div class="login"><h1>🎛️ Telefonzentrale — Admin</h1>
+    <button class="g" onclick="gLogin()">Mit Google anmelden</button>
+    <input id="em" type="email" placeholder="E-Mail"><input id="pw" type="password" placeholder="Passwort">
+    <button onclick="pwLogin()">Anmelden</button><div class="err">${esc(msg||'')}</div></div>`;
+}
+async function gLogin(){ try{ await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }catch(e){ loginView(e.code||e.message); } }
+async function pwLogin(){ try{ await auth.signInWithEmailAndPassword($('#em').value.trim(),$('#pw').value); }catch(e){ loginView(e.code||e.message); } }
+
+auth.onAuthStateChanged(u=>{ if(!u){loginView();return;}
+  if(u.email!=='maximechristalle@gmail.com'){ loginView('Kein Admin-Konto: '+u.email); auth.signOut(); return; }
+  dashboard(u); });
+
+async function summe(uid, tage){
+  // Tages-Zaehler der letzten N Tage aufsummieren (Doc-IDs sind YYYY-MM-DD)
+  const von=tagStr(new Date(Date.now()-tage*864e5));
+  const q=await db.collection('wc_telefonisten').doc(uid).collection('tage')
+    .where(firebase.firestore.FieldPath.documentId(),'>=',von).get();
+  const s={anrufe:0,erreicht:0,interessiert:0,kein_interesse:0,keine_antwort:0,rueckruf:0};
+  q.docs.forEach(d=>{const x=d.data();Object.keys(s).forEach(k=>s[k]+=x[k]||0);});
+  return s;
+}
+
+async function dashboard(u){
+  $('#app').innerHTML=`<div class="top"><div class="logo"></div><b>Telefonzentrale — Admin</b>
+    <span class="who">${esc(u.email)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
+    <div class="wrap" id="inhalt">Lade…</div>`;
+  const [telSnap, salesSnap, fehlerSnap] = await Promise.all([
+    db.collection('wc_telefonisten').get(),
+    db.collection('wc_sales').get(),
+    db.collection('wc_jobs').where('status','==','fehler').get()
+  ]);
+  const tels=telSnap.docs.map(d=>({uid:d.id,...d.data()}));
+  const sales=salesSnap.docs.map(d=>({id:d.id,...d.data()}));
+
+  let gesamt={anrufe:0,interessiert:0}, zeilen='';
+  for(const t of tels){
+    const [s7,s30,leadsSnap]=await Promise.all([summe(t.uid,7),summe(t.uid,30),
+      db.collection('wc_leads').where('telefonist','==',t.uid).get()]);
+    const leads=leadsSnap.docs.map(d=>d.data());
+    const st=s=>leads.filter(l=>l.status===s).length;
+    const meineSales=sales.filter(x=>x.telefonist===t.uid);
+    const prov=meineSales.reduce((a,x)=>a+(x.provision_eur||0),0);
+    gesamt.anrufe+=s30.anrufe; gesamt.interessiert+=s30.interessiert;
+    zeilen+=`<tr><td><b>${esc(t.name)}</b><div class="hint">${esc(t.email)}${t.aktiv===false?' · <span class="pill rot">inaktiv</span>':''}</div></td>
+      <td>${leads.length}<div class="hint">${st('offen')} offen</div></td>
+      <td>${s7.anrufe} / ${s30.anrufe}</td>
+      <td>${s7.erreicht} / ${s30.erreicht}</td>
+      <td>${s7.interessiert} / ${s30.interessiert}</td>
+      <td>${st('vorschau_gesendet')+st('gekauft')}</td>
+      <td><b>${meineSales.length}</b></td>
+      <td><b>${EUR(prov)}</b><div class="hint">à ${EUR(t.provision_eur||100)}</div></td></tr>`;
+  }
+  const umsatz=sales.reduce((a,x)=>a+(x.betrag||0),0);
+  const provGesamt=sales.reduce((a,x)=>a+(x.provision_eur||0),0);
+  $('#inhalt').innerHTML=`
+    <div class="kpis">
+      <div class="kpi"><b>${tels.filter(t=>t.aktiv!==false).length}</b><span>Aktive Telefonisten</span></div>
+      <div class="kpi"><b>${gesamt.anrufe}</b><span>Anrufe (30 Tage)</span></div>
+      <div class="kpi"><b>${gesamt.interessiert}</b><span>Interessiert (30 T.)</span></div>
+      <div class="kpi"><b>${sales.length}</b><span>Verkäufe gesamt</span></div>
+      <div class="kpi"><b>${EUR(umsatz)}</b><span>Umsatz · Provision: ${EUR(provGesamt)}</span></div>
+    </div>
+    <h2>👥 Telefonisten <span class="hint">(Zahlen: 7 Tage / 30 Tage)</span></h2>
+    <div class="tableswrap"><table><tr><th>Telefonist</th><th>Leads</th><th>Anrufe</th><th>Erreicht</th><th>Interessiert</th><th>Vorschauen</th><th>Verkäufe</th><th>Provision</th></tr>
+    ${zeilen||'<tr><td colspan="8">Noch keine Telefonisten angelegt.</td></tr>'}</table></div>
+    <h2>💰 Verkäufe</h2>
+    <div class="tableswrap"><table><tr><th>Datum</th><th>Firma</th><th>Betrag</th><th>Telefonist</th><th>Provision</th></tr>
+    ${sales.sort((a,b)=>(b.bezahlt_am||'').localeCompare(a.bezahlt_am||'')).slice(0,50).map(x=>{
+      const t=tels.find(t=>t.uid===x.telefonist);
+      return `<tr><td>${esc((x.bezahlt_am||'').slice(0,10))}</td><td>${esc(x.firma)}</td><td>${EUR(x.betrag)}</td>
+        <td>${t?esc(t.name):'<span class="pill grau">direkt (Maxime)</span>'}</td>
+        <td>${x.telefonist?EUR(x.provision_eur):'—'}</td></tr>`;}).join('')||'<tr><td colspan="5">Noch keine Verkäufe erfasst.</td></tr>'}</table></div>
+    ${fehlerSnap.size?`<h2>⚠️ Fehlgeschlagene Bau-Aufträge (${fehlerSnap.size})</h2>
+    <div class="tableswrap"><table><tr><th>Firma</th><th>E-Mail</th><th>Fehler</th><th>Zeit</th></tr>
+    ${fehlerSnap.docs.map(d=>{const j=d.data();return `<tr><td>${esc(j.firma)}</td><td>${esc(j.email)}</td><td>${esc((j.error||'').slice(0,90))}</td><td>${esc((j.created_at||'').slice(0,16).replace('T',' '))}</td></tr>`;}).join('')}</table></div>`:''}
+    <p class="hint" style="margin-top:22px">Verwaltung (Telefonist anlegen, Leads zuteilen, Provisions-Report) läuft über die Tools auf deinem PC: <code>Desktop\\WebCraft\\Telefonzentrale\\tools\\</code></p>`;
+}
+</script>
+</body>
+</html>
