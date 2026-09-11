@@ -25,6 +25,12 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:
 .chip.an{background:var(--blau);border-color:var(--blau);color:#fff}
 .wunsch{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:12.5px;color:var(--muted)}
 .wunsch select{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px;background:#fff}
+.staffel{background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px}
+.staffel b{font-size:17px}
+.staffel .zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.staffel .sub{font-size:12px;opacity:.92;margin-top:4px}
+.balken{height:7px;background:rgba(255,255,255,.25);border-radius:6px;margin-top:9px;overflow:hidden}
+.balken div{height:100%;background:#fff;border-radius:6px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 8px;text-align:center}
 .stat b{display:block;font-size:21px}.stat span{font-size:10.5px;color:var(--muted)}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
@@ -128,8 +134,45 @@ async function statsHeute(){
        return d.exists?d.data():{}; }catch(e){ return {}; }
 }
 
+// PROVISIONS-STAFFEL — MUSS zu telefonzentrale_worker.py passen!
+// Monatlich, marginal: 1.-9. Abschluss 100 € · 10.-19. 120 € · ab 20. 140 €
+const STAFFEL=[[20,140],[10,120],[1,100]];
+const MEILENSTEINE=[[25,100],[50,250],[100,500]];
+function stufenSatz(n){for(const [ab,s] of STAFFEL) if(n>=ab) return s; return 100;}
+
+async function provisionsStand(){
+  try{
+    const q=await db.collection('wc_sales').where('telefonist','==',UID).get();
+    const alle=q.docs.map(d=>d.data());
+    const echte=alle.filter(s=>!s.bonus);
+    const monat=new Date().toISOString().slice(0,7);
+    const imMonat=echte.filter(s=>(s.bezahlt_am||'').slice(0,7)===monat).length;
+    const verdient=alle.filter(s=>(s.bezahlt_am||'').slice(0,7)===monat)
+                       .reduce((a,s)=>a+(s.provision_eur||0),0);
+    return {imMonat, verdient, gesamt:echte.length};
+  }catch(e){ return null; }
+}
+
+function staffelBanner(p){
+  if(!p) return '';
+  const satz=stufenSatz(p.imMonat+1);                      // Satz fuer den NAECHSTEN Abschluss
+  const naechste=STAFFEL.slice().reverse().find(([ab])=>p.imMonat+1<ab);
+  const stufenTxt=naechste?`Noch <b>${naechste[0]-p.imMonat}</b> bis zur ${naechste[1]}-€-Stufe 🔥`
+                          :`Höchste Stufe erreicht — jeder Abschluss <b>140 €</b> 🏆`;
+  const basis=naechste?(naechste[0]===10?0:10):20;
+  const ziel=naechste?naechste[0]:Math.max(p.imMonat,20);
+  const pct=Math.max(0,Math.min(100,Math.round((p.imMonat-basis)/(ziel-basis||1)*100)));
+  const ms=MEILENSTEINE.find(([ab])=>p.gesamt<ab);
+  return `<div class="staffel"><div class="zeile">
+    <div>💰 Diesen Monat: <b>${p.imMonat} Abschlüsse</b> · verdient: <b>${p.verdient} €</b></div>
+    <div>Nächster Abschluss: <b>${satz} €</b></div></div>
+    <div class="balken"><div style="width:${pct}%"></div></div>
+    <div class="sub">${stufenTxt}${ms?` &nbsp;·&nbsp; Gesamt: ${p.gesamt} — Bonus +${ms[1]} € beim ${ms[0]}. Abschluss`:''}</div>
+  </div>`;
+}
+
 async function render(){
-  const st=await statsHeute();
+  const [st,prov]=await Promise.all([statsHeute(),provisionsStand()]);
   const alleOff=offene(true), off=offene(); LEAD=off[0]||null;
   const wv=wiedervorlage();
   const zaehl={}; alleOff.forEach(l=>{const g=gruppeVon(l.branche); zaehl[g]=(zaehl[g]||0)+1;});
@@ -140,6 +183,7 @@ async function render(){
   $('#app').innerHTML=`
   <div class="top"><div class="logo"></div><b>Telefon-Cockpit</b><span class="who">${esc(NAME)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
   <div class="wrap">
+    ${staffelBanner(prov)}
     <div class="stats">
       <div class="stat"><b>${off.length}</b><span>Offen${FILTER?' (Filter)':''}</span></div>
       <div class="stat"><b>${st.anrufe||0}</b><span>Heute angerufen</span></div>
