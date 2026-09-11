@@ -36,6 +36,11 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:
 .hilfe ol{padding-left:20px;margin-top:8px}
 .hilfe li{margin-bottom:5px}
 .elabel{display:block;font-size:12.5px;font-weight:700;color:#15803d;margin:16px 0 6px}
+.abrow{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.abrow span:first-child{color:var(--muted);white-space:nowrap}
+.abrow .af{flex:1}
+.abrow b{color:#15803d;white-space:nowrap}
+.abhint{font-size:12px;color:var(--muted);margin:8px 0 10px;line-height:1.5}
 .emailfeld{width:100%;border:1.5px solid #bbf7d0;background:#f0fdf4;border-radius:10px;padding:12px;font-size:15px}
 .emailfeld:focus{outline:2px solid #16a34a;background:#fff}
 .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 8px;text-align:center}
@@ -150,14 +155,30 @@ function stufenSatz(n){for(const [ab,s] of STAFFEL) if(n>=ab) return s; return 1
 async function provisionsStand(){
   try{
     const q=await db.collection('wc_sales').where('telefonist','==',UID).get();
-    const alle=q.docs.map(d=>d.data());
+    const alle=q.docs.map(d=>d.data()).sort((a,b)=>(b.bezahlt_am||'').localeCompare(a.bezahlt_am||''));
     const echte=alle.filter(s=>!s.bonus);
     const monat=new Date().toISOString().slice(0,7);
     const imMonat=echte.filter(s=>(s.bezahlt_am||'').slice(0,7)===monat).length;
     const verdient=alle.filter(s=>(s.bezahlt_am||'').slice(0,7)===monat)
                        .reduce((a,s)=>a+(s.provision_eur||0),0);
-    return {imMonat, verdient, gesamt:echte.length};
+    return {imMonat, verdient, gesamt:echte.length, liste:alle};
   }catch(e){ return null; }
+}
+
+// Volle Transparenz: JEDER Abschluss namentlich — der Telefonist sieht exakt dieselben
+// Daten, aus denen die Monatsabrechnung entsteht. Nichts zu glauben, alles nachlesbar.
+function abschlussListe(p){
+  if(!p) return '';
+  const summe=p.liste.reduce((a,s)=>a+(s.provision_eur||0),0);
+  const zeilen=p.liste.length?p.liste.map(s=>
+    `<div class="abrow"><span>${esc((s.bezahlt_am||'').slice(0,10))}</span>
+     <span class="af">${s.bonus?'🏆 ':''}${esc(s.firma||'')}</span>
+     <b>+${s.provision_eur||0} €</b></div>`).join('')
+    :'<div class="abrow" style="color:var(--muted)">Noch keine Abschlüsse — dein erster landet hier, sobald ein Kunde aus deinen Anrufen bezahlt hat.</div>';
+  return `<details class="hilfe"><summary>💰 Meine Abschlüsse &amp; Provisionen (${p.gesamt} · gesamt verdient: ${summe} €)</summary>
+    <div class="abhint">Diese Liste ist deine Abrechnung: Jeder bezahlte Kauf aus deinen Anrufen wird automatisch
+    über das Zahlungssystem (Stripe) deinem Namen zugeordnet — dieselben Daten sieht auch Maxime. Monatsende = Auszahlung.</div>
+    ${zeilen}</details>`;
 }
 
 function staffelBanner(p){
@@ -191,6 +212,7 @@ async function render(){
   <div class="top"><div class="logo"></div><b>Telefon-Cockpit</b><span class="who">${esc(NAME)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
   <div class="wrap">
     ${staffelBanner(prov)}
+    ${abschlussListe(prov)}
     <div class="stats">
       <div class="stat"><b>${off.length}</b><span>Offen${FILTER?' (Filter)':''}</span></div>
       <div class="stat"><b>${st.anrufe||0}</b><span>Heute angerufen</span></div>
