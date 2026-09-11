@@ -69,20 +69,34 @@ const $=s=>document.querySelector(s);
 const SLOTS = ['09:00','09:30','10:00','10:30','11:00','16:00','16:30','17:00']; // PY-Zeit
 const ANZAHL_TAGE = 10;          // wie viele Werktage im Voraus buchbar
 const WOCHENTAGE = [1,2,3,4,5];  // Mo–Fr (0=So)
+// Gesperrte Zeiten (Maximes Kalender / Nordstern — bei neuen Serienterminen hier ergaenzen):
+const GESPERRT_WOCHE = [
+  {tag:1, zeiten:['16:00','16:30','17:00'], bis:'2026-12-08'},  // Mo 16-18 Kundlini-Class
+];
+const GESPERRT_TAGE = ['2026-10-01'];                            // Zeremonie Villarrica (ganztags)
 // ============================================
 
 const WT=['So','Mo','Di','Mi','Do','Fr','Sa'];
 const MON=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 let TAGE=[], TAGWAHL=null, SLOTWAHL=null, BELEGT=new Set();
 
+const tagId=d=>d.toLocaleDateString('sv-SE');
+function gesperrt(d, zeit){
+  if(GESPERRT_TAGE.includes(tagId(d))) return true;
+  return GESPERRT_WOCHE.some(r=>r.tag===d.getDay()
+    && (!r.bis||tagId(d)<=r.bis)
+    && (zeit===null||r.zeiten.includes(zeit)));
+}
 (function(){
   const d=new Date(); d.setDate(d.getDate()+1);          // fruehestens morgen
   while(TAGE.length<ANZAHL_TAGE){
-    if(WOCHENTAGE.includes(d.getDay())) TAGE.push(new Date(d));
+    // Tag aufnehmen, wenn Wochentag passt und mindestens ein Slot frei waere
+    if(WOCHENTAGE.includes(d.getDay())
+       && !GESPERRT_TAGE.includes(tagId(d))
+       && SLOTS.some(s=>!gesperrt(d,s))) TAGE.push(new Date(d));
     d.setDate(d.getDate()+1);
   }
 })();
-const tagId=d=>d.toLocaleDateString('sv-SE');
 
 async function ladeBelegte(){
   BELEGT=new Set();
@@ -103,7 +117,7 @@ function zeigSlots(){
   if(TAGWAHL===null){ $('#slots').innerHTML='<div class="hint" style="grid-column:1/-1">Erst einen Tag wählen</div>'; return; }
   const id=tagId(TAGE[TAGWAHL]);
   $('#slots').innerHTML=SLOTS.map(s=>{
-    const voll=BELEGT.has(id+'_'+s.replace(':','-'));
+    const voll=BELEGT.has(id+'_'+s.replace(':','-')) || gesperrt(TAGE[TAGWAHL], s);
     return `<div class="slot${SLOTWAHL===s?' an':''}${voll?' weg':''}" ${voll?'':`onclick="waehleSlot('${s}')"`}>${s}</div>`;
   }).join('');
   pruef();
@@ -117,6 +131,7 @@ async function buchen(){
   if($('#firma').value){ return; }                                   // Honeypot
   if(!name){ $('#err').textContent='Bitte Namen eintragen.'; return; }
   if(!/^\+?[\d\s\-()]{8,}$/.test(tel)){ $('#err').textContent='Bitte gültige WhatsApp-Nummer mit Vorwahl eintragen.'; return; }
+  if(gesperrt(TAGE[TAGWAHL], SLOTWAHL)){ $('#err').textContent='Dieser Termin ist nicht verfügbar — bitte einen anderen wählen.'; return; }
   $('#btn').disabled=true; $('#err').textContent='';
   const slotId=tagId(TAGE[TAGWAHL])+'_'+SLOTWAHL.replace(':','-');
   try{
