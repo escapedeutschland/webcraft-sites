@@ -25,12 +25,19 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:
 .chip.an{background:var(--blau);border-color:var(--blau);color:#fff}
 .wunsch{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:12.5px;color:var(--muted)}
 .wunsch select{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px;background:#fff}
-.staffel{background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px}
-.staffel b{font-size:17px}
-.staffel .zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.staffel .sub{font-size:12px;opacity:.92;margin-top:4px}
-.balken{height:7px;background:rgba(255,255,255,.25);border-radius:6px;margin-top:9px;overflow:hidden}
+.staffel{background:linear-gradient(135deg,#1e3a8a,#155e75);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.staffel b{font-size:17px;color:#fff}
+.staffel .zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:14.5px}
+.staffel .sub{font-size:12.5px;margin-top:5px;color:#fff}
+.balken{height:7px;background:rgba(255,255,255,.28);border-radius:6px;margin-top:9px;overflow:hidden}
 .balken div{height:100%;background:#fff;border-radius:6px}
+.hilfe{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#334155}
+.hilfe summary{cursor:pointer;font-weight:700;color:#1d4ed8}
+.hilfe ol{padding-left:20px;margin-top:8px}
+.hilfe li{margin-bottom:5px}
+.elabel{display:block;font-size:12.5px;font-weight:700;color:#15803d;margin:16px 0 6px}
+.emailfeld{width:100%;border:1.5px solid #bbf7d0;background:#f0fdf4;border-radius:10px;padding:12px;font-size:15px}
+.emailfeld:focus{outline:2px solid #16a34a;background:#fff}
 .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 8px;text-align:center}
 .stat b{display:block;font-size:21px}.stat span{font-size:10.5px;color:var(--muted)}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
@@ -45,7 +52,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#f1f5f9;color:
 .warum{margin-top:12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13.5px;color:#475569}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
 .btn{border:0;border-radius:10px;padding:13px 10px;font-size:14px;font-weight:700;cursor:pointer}
-.yes{background:#16a34a;color:#fff}.no{background:#fff;color:#b91c1c;border:1.5px solid #fecaca}
+.yes{background:#16a34a;color:#fff;grid-column:1/-1;font-size:15px;padding:15px 10px}.no{background:#fff;color:#b91c1c;border:1.5px solid #fecaca}
 .wait{background:#fff;color:#c2410c;border:1.5px solid #fed7aa}.cb{background:#fff;color:#1d4ed8;border:1.5px solid #bfdbfe}
 .skip{background:#f8fafc;color:#475569;border:1.5px solid var(--line);grid-column:1/-1}
 .panel{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:16px}
@@ -196,6 +203,14 @@ async function render(){
         <option value=""${WUNSCH?'':' selected'}>Gemischt (alle)</option>
         ${Object.entries(GRUPPEN).map(([k,g])=>`<option value="${k}"${WUNSCH===k?' selected':''}>${g.label}</option>`).join('')}
       </select></div>
+    <details class="hilfe"><summary>❓ Kurzanleitung — so funktioniert dein Cockpit</summary><ol>
+      <li><b>Anrufen:</b> Die Karte zeigt dir immer den nächsten Betrieb (beste zuerst). Nummer wählen, Gespräch nach Leitfaden führen.</li>
+      <li><b>Ergebnis klicken:</b> Nach JEDEM Gespräch einen der Buttons drücken — das pflegt deine Liste und Statistik automatisch.</li>
+      <li><b>Bei Interesse:</b> E-Mail des Kunden ins <span style="color:#15803d;font-weight:700">grüne Feld</span> tippen (laut buchstabieren lassen — eine falsche E-Mail = kein Abschluss!) und ✅ klicken. Das Büro verschickt die fertige Vorschau, du telefonierst einfach weiter.</li>
+      <li><b>Filter-Chips:</b> zeigen nur Leads der gewählten Branche aus DEINER Liste (die Zahl in Klammern = wie viele du davon hast). „Alle" = beste Priorität zuerst.</li>
+      <li><b>Nachschub-Wunsch:</b> bestimmt, welche Branche du bevorzugt nachgelegt bekommst, wenn deine Liste zur Neige geht.</li>
+      <li><b>💰 Leiste oben:</b> dein Provisions-Stand diesen Monat — je mehr Abschlüsse, desto höher die Stufe (100 → 120 → 140 €).</li>
+    </ol></details>
     <div id="main">${LEAD?karte(LEAD):`<div class="card empty"><div style="font-size:40px">🎉</div><h2>Liste abgearbeitet!</h2><p style="color:var(--muted);margin-top:8px">Melde dich bei Maxime für neue Leads.</p></div>`}</div>
     <div class="wv" id="wv">${wv.length?`<h3>🔁 Wiedervorlage (${wv.length})</h3>`+wv.map(w=>`
       <div class="wvrow"><div><div class="l">${esc(w.firma)}</div><div class="s">${w.status==='rueckruf'?'Rückruf'+(w.callback?' '+esc(w.callback):''):'Keine Antwort'} · ${esc(w.telefon)}</div></div>
@@ -212,15 +227,15 @@ function karte(l){return `<div class="card">
     ${l.maps?`<a class="lnk" href="${esc(l.maps)}" target="_blank">Google Maps ↗</a>`:''}
     <a class="lnk" href="https://www.google.com/search?q=${encodeURIComponent('"'+l.firma+'" '+(l.stadt||'')+' Inhaber OR Geschäftsführer')}" target="_blank">🔍 Inhaber suchen ↗</a></div>
   ${l.warum?`<div class="warum">💡 ${esc(l.warum)}</div>`:''}
+  <label class="elabel">📧 E-Mail des Kunden — dein wichtigstes Feld! Bei Interesse eintragen (laut buchstabieren lassen), dann ✅ klicken. Das Büro verschickt die Vorschau.</label>
+  <input id="email" class="emailfeld" type="email" placeholder="kunde@betrieb.de">
   <div class="row">
-    <button class="btn yes" onclick="panel('int')">✅ Interessiert</button>
+    <button class="btn yes" onclick="ergebnis('interessiert')">✅ Interessiert — an Büro übermitteln</button>
     <button class="btn no" onclick="ergebnis('kein_interesse')">❌ Kein Interesse</button>
     <button class="btn wait" onclick="ergebnis('keine_antwort')">📵 Keine Antwort</button>
     <button class="btn cb" onclick="panel('cb')">🔁 Rückruf</button>
     <button class="btn skip" onclick="ueberspringen()">⏭ Überspringen</button>
   </div>
-  <div class="panel" id="p_int"><label>E-Mail des Kunden (das Büro verschickt die fertige Website-Vorschau)</label>
-    <input id="email" type="email" placeholder="kunde@betrieb.de"><button onclick="ergebnis('interessiert')">An das Büro übermitteln →</button></div>
   <div class="panel" id="p_cb"><label>Rückruf-Termin</label>
     <input id="callback" type="datetime-local"><button onclick="ergebnis('rueckruf')">Rückruf speichern →</button></div>
   <textarea id="notiz" placeholder="Notiz zum Gespräch (optional)…"></textarea>
@@ -246,7 +261,10 @@ async function zaehle(felder){
 async function ergebnis(art){
   if(!LEAD) return;
   const notiz=($('#notiz')||{}).value||'', email=(($('#email')||{}).value||'').trim(), callback=($('#callback')||{}).value||'';
-  if(art==='interessiert' && !/.+@.+\..+/.test(email)){ toast('Bitte gültige E-Mail eingeben'); return; }
+  if(art==='interessiert' && !/.+@.+\..+/.test(email)){
+    toast('Bitte zuerst die E-Mail des Kunden ins grüne Feld eintragen');
+    const f=$('#email'); if(f){f.focus(); f.style.borderColor='#dc2626'; f.style.background='#fef2f2';}
+    return; }
   const l=LEAD;
   try{
     await db.collection('wc_leads').doc(l.id).update({
