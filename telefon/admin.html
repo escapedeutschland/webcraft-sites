@@ -28,7 +28,7 @@ th{background:#f8fafc;text-align:left;font-size:11.5px;color:var(--muted);text-t
 td{padding:11px 13px;border-bottom:1px solid #f1f5f9;font-size:13.5px}
 tr:last-child td{border-bottom:0}
 .pill{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px}
-.gruen{background:#f0fdf4;color:#15803d}.rot{background:#fef2f2;color:#b91c1c}.grau{background:#f1f5f9;color:#475569}
+.gruen{background:#f0fdf4;color:#15803d}.rot{background:#fef2f2;color:#b91c1c}.grau{background:#f1f5f9;color:#475569}.gelbp{background:#fefce8;color:#a16207}
 .login{max-width:360px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px}
 .login h1{font-size:19px;margin-bottom:18px}
 .login input{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px;font-size:15px;margin-bottom:11px}
@@ -85,23 +85,36 @@ async function dashboard(u){
   const tels=telSnap.docs.map(d=>({uid:d.id,...d.data()}));
   const sales=salesSnap.docs.map(d=>({id:d.id,...d.data()}));
 
+  // Quoten-Ampel: zeigt WO ein Telefonist Coaching braucht (erst ab genug Datenbasis)
+  function ampel(quote, basis, minBasis, gelb, gruen){
+    if(basis<minBasis) return `<span class="pill grau">${basis? Math.round(quote*100)+'%':'—'}</span>`;
+    const p=Math.round(quote*100);
+    const cls=quote>=gruen?'gruen':(quote>=gelb?'gelbp':'rot');
+    return `<span class="pill ${cls}">${p}%</span>`;
+  }
   let gesamt={anrufe:0,interessiert:0}, zeilen='';
   for(const t of tels){
     const [s7,s30,leadsSnap]=await Promise.all([summe(t.uid,7),summe(t.uid,30),
       db.collection('wc_leads').where('telefonist','==',t.uid).get()]);
     const leads=leadsSnap.docs.map(d=>d.data());
     const st=s=>leads.filter(l=>l.status===s).length;
-    const meineSales=sales.filter(x=>x.telefonist===t.uid);
-    const prov=meineSales.reduce((a,x)=>a+(x.provision_eur||0),0);
+    const meineSales=sales.filter(x=>x.telefonist===t.uid&&!x.bonus);
+    const prov=sales.filter(x=>x.telefonist===t.uid).reduce((a,x)=>a+(x.provision_eur||0),0);
     gesamt.anrufe+=s30.anrufe; gesamt.interessiert+=s30.interessiert;
-    zeilen+=`<tr><td><b>${esc(t.name)}</b><div class="hint">${esc(t.email)}${t.aktiv===false?' · <span class="pill rot">inaktiv</span>':''}</div></td>
+    const vorschauen=st('vorschau_gesendet')+st('gekauft');
+    const qE=s30.erreicht/Math.max(1,s30.anrufe), qI=s30.interessiert/Math.max(1,s30.erreicht),
+          qK=meineSales.length/Math.max(1,vorschauen);
+    zeilen+=`<tr><td><b>${esc(t.name)}</b><div class="hint">${esc(t.email)}${t.aktiv===false?' · <span class="pill rot">inaktiv</span>':''}${t.training?' · <span class="pill gelbp">🎓 Training</span>':''}</div></td>
       <td>${leads.length}<div class="hint">${st('offen')} offen</div></td>
       <td>${s7.anrufe} / ${s30.anrufe}</td>
       <td>${s7.erreicht} / ${s30.erreicht}</td>
       <td>${s7.interessiert} / ${s30.interessiert}</td>
-      <td>${st('vorschau_gesendet')+st('gekauft')}</td>
+      <td class="hint" style="white-space:nowrap">Err. ${ampel(qE,s30.anrufe,50,.2,.35)}<br>
+        Int. ${ampel(qI,s30.erreicht,30,.1,.2)}<br>
+        Kauf ${ampel(qK,vorschauen,10,.1,.2)}</td>
+      <td>${vorschauen}</td>
       <td><b>${meineSales.length}</b></td>
-      <td><b>${EUR(prov)}</b><div class="hint">à ${EUR(t.provision_eur||100)}</div></td></tr>`;
+      <td><b>${EUR(prov)}</b><div class="hint">Staffel 100–140</div></td></tr>`;
   }
   const umsatz=sales.reduce((a,x)=>a+(x.betrag||0),0);
   const provGesamt=sales.reduce((a,x)=>a+(x.provision_eur||0),0);
@@ -114,8 +127,8 @@ async function dashboard(u){
       <div class="kpi"><b>${EUR(umsatz)}</b><span>Umsatz · Provision: ${EUR(provGesamt)}</span></div>
     </div>
     <h2>👥 Telefonisten <span class="hint">(Zahlen: 7 Tage / 30 Tage)</span></h2>
-    <div class="tableswrap"><table><tr><th>Telefonist</th><th>Leads</th><th>Anrufe</th><th>Erreicht</th><th>Interessiert</th><th>Vorschauen</th><th>Verkäufe</th><th>Provision</th></tr>
-    ${zeilen||'<tr><td colspan="8">Noch keine Telefonisten angelegt.</td></tr>'}</table></div>
+    <div class="tableswrap"><table><tr><th>Telefonist</th><th>Leads</th><th>Anrufe</th><th>Erreicht</th><th>Interessiert</th><th>Quoten-Ampel (30 T.)</th><th>Vorschauen</th><th>Verkäufe</th><th>Provision</th></tr>
+    ${zeilen||'<tr><td colspan="9">Noch keine Telefonisten angelegt.</td></tr>'}</table></div>
     <h2>💰 Verkäufe</h2>
     <div class="tableswrap"><table><tr><th>Datum</th><th>Firma</th><th>Betrag</th><th>Telefonist</th><th>Provision</th></tr>
     ${sales.sort((a,b)=>(b.bezahlt_am||'').localeCompare(a.bezahlt_am||'')).slice(0,50).map(x=>{
