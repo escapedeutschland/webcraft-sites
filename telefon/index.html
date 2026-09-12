@@ -149,7 +149,7 @@ async function statsHeute(){
 // PROVISIONS-STAFFEL — MUSS zu telefonzentrale_worker.py passen!
 // Monatlich, marginal: 1.-9. Abschluss 100 € · 10.-19. 120 € · ab 20. 140 €
 const STAFFEL=[[20,140],[10,120],[1,100]];
-const MEILENSTEINE=[[25,100],[50,250],[100,500]];
+const MEILENSTEINE=[[25,200],[50,500],[100,1000]];
 function stufenSatz(n){for(const [ab,s] of STAFFEL) if(n>=ab) return s; return 100;}
 
 async function provisionsStand(){
