@@ -89,7 +89,7 @@ textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px
 firebase.initializeApp({ apiKey: "AIzaSyDnkFcyHpljFvmpVmc5A82hxvGkmDHV_K4", authDomain: "webcraft-agentur.firebaseapp.com", projectId: "webcraft-agentur" });
 const auth = firebase.auth(), db = firebase.firestore();
 const FV = firebase.firestore.FieldValue;
-let UID=null, NAME='', LEADS=[], LEAD=null, SKIP=[], JOBUNSUB=null, FILTER='', WUNSCH='';
+let UID=null, NAME='', LEADS=[], LEAD=null, SKIP=[], JOBUNSUB=null, FILTER='', WUNSCH='', FEST=0;
 
 // Branchen-Gruppen (muss zu lead_pool.py passen)
 const GRUPPEN={
@@ -124,7 +124,7 @@ auth.onAuthStateChanged(async u=>{
   try{
     const t=await db.collection('wc_telefonisten').doc(UID).get();
     if(!t.exists){ loginView('Dieses Konto ist nicht als Telefonist freigeschaltet.'); auth.signOut(); return; }
-    NAME=t.data().name||u.email; WUNSCH=t.data().wunsch_branchen||'';
+    NAME=t.data().name||u.email; WUNSCH=t.data().wunsch_branchen||''; FEST=t.data().provision_fest||0;
   }catch(e){ loginView('Kein Telefonisten-Zugang ('+(e.code||e.message)+')'); auth.signOut(); return; }
   await ladeLeads(); render();
 });
@@ -183,6 +183,9 @@ function abschlussListe(p){
 
 function staffelBanner(p){
   if(!p) return '';
+  if(FEST) return `<div class="staffel"><div class="zeile">
+    <div>💰 Diesen Monat: <b>${p.imMonat} Abschlüsse</b> · verdient: <b>${p.verdient} €</b></div>
+    <div>Jeder Abschluss: <b>${FEST} €</b></div></div></div>`;
   const satz=stufenSatz(p.imMonat+1);                      // Satz fuer den NAECHSTEN Abschluss
   const naechste=STAFFEL.slice().reverse().find(([ab])=>p.imMonat+1<ab);
   const stufenTxt=naechste?`Noch <b>${naechste[0]-p.imMonat}</b> bis zur ${naechste[1]}-€-Stufe 🔥`
