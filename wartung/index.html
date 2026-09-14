@@ -27,7 +27,7 @@
 <div class="card">
   <div id="form-wrap">
     <h1>Änderungswunsch</h1>
-    <div class="sub">Ihre Website-Pflege (49 €-Abo) – sagen Sie uns, was geändert werden soll.</div>
+    <div class="sub">Ihre Website-Pflege (8,99 €-Abo) – sagen Sie uns, was geändert werden soll.</div>
     <div class="site" id="site">Website: …</div>
 
     <label>Was soll geändert werden?</label>
@@ -63,7 +63,7 @@
   </div>
 </div>
 <script>
-  const ENDPOINT="https://script.google.com/macros/s/AKfycbyyF6cRQmxbjObnNjjmADQosN8wXRkTiEiwEQSU9yb5Q_k5EaS_kO82Z25hMLk3H1sUyA/exec", EMPF="maximechristalle@gmail.com";
+  const ENDPOINT="@@FORM_ENDPOINT@@", EMPF="@@COMPANY_EMAIL@@";
   const CLOUD="deqrzcnqp", PRESET="Kunden_Bilder";
   const q=new URLSearchParams(location.search);
   const slug=q.get('kunde')||'';
