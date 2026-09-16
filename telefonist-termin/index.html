@@ -91,10 +91,9 @@ function gesperrt(d, zeit){
 (function(){
   const d=new Date(); d.setDate(d.getDate()+1);          // fruehestens morgen
   while(TAGE.length<ANZAHL_TAGE){
-    // Tag aufnehmen, wenn Wochentag passt und mindestens ein Slot frei waere
-    if(WOCHENTAGE.includes(d.getDay())
-       && !GESPERRT_TAGE.includes(tagId(d))
-       && SLOTS.some(s=>!gesperrt(d,s))) TAGE.push(new Date(d));
+    // Alle Werktage anzeigen — gesperrte Tage bleiben sichtbar, ihre Slots sind
+    // durchgestrichen (zeigSlots/gesperrt) und buchen() blockt sie zusaetzlich.
+    if(WOCHENTAGE.includes(d.getDay())) TAGE.push(new Date(d));
     d.setDate(d.getDate()+1);
   }
 })();
