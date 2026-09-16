@@ -80,6 +80,21 @@ textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px
 .wvrow .l{font-weight:700}.wvrow .s{color:var(--muted);font-size:12px}
 .wvrow button{margin-left:auto;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:10px;padding:11px 20px;font-size:14px;display:none}
+.ampel{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 14px;margin-bottom:12px;font-size:13px;color:#334155;font-weight:600;flex-wrap:wrap}
+.ampel .uhr{font-size:15px;font-weight:800;white-space:nowrap}
+.due{background:#fff7ed;border:1.5px solid #fdba74;border-radius:12px;padding:11px 14px;margin-bottom:10px;font-size:13.5px;display:flex;align-items:center;gap:10px}
+.due b{color:#c2410c}.due .s{color:var(--muted);font-size:12px}
+.due button{margin-left:auto;border:0;background:#ea580c;color:#fff;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.stern{font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;background:#fefce8;color:#a16207;border:1px solid #fde68a}
+.vers{font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;background:#f1f5f9;color:#475569}
+.spick{margin-top:14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:9px 13px;font-size:13px;color:#334155}
+.spick summary{cursor:pointer;font-weight:700;color:#1d4ed8;font-size:12.5px}
+.spick p{margin:8px 0 0;line-height:1.5}
+.spick b{color:#1e40af}
+.ub{margin-top:22px}.ub h3{font-size:14px;color:var(--muted);margin-bottom:8px}
+.ubrow{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:11px;padding:10px 14px;display:flex;gap:10px;align-items:center;margin-bottom:7px;font-size:13.5px}
+.ubrow .l{font-weight:700}.ubrow .s{color:var(--muted);font-size:12px;margin-left:auto;text-align:right}
+.notizhint{font-size:11px;color:#15803d;margin-top:4px;text-align:right;min-height:14px}
 </style>
 </head>
 <body>
@@ -105,6 +120,28 @@ const $=s=>document.querySelector(s);
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const heute=()=>new Date().toLocaleDateString('sv-SE');
 function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
+
+// Deutschland-Uhr + Anruf-Ampel (Kernfenster: deutscher Nachmittag)
+function deInfo(){
+  const now=new Date();
+  const uhr=new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',hour:'2-digit',minute:'2-digit'}).format(now);
+  const tag=new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Berlin',weekday:'short'}).format(now);
+  const [h,m]=uhr.split(':').map(Number), t=h*60+m;
+  let punkt='🔴', txt='Nacht in Deutschland — keine Anrufe';
+  if(tag==='Sun'){ punkt='🔴'; txt='Sonntag — Liste für Montag vorbereiten'; }
+  else if(tag==='Sat'){ punkt='🟡'; txt='Samstag — nur Gastro/Bäcker vormittags eine Chance'; }
+  else if(t>=810&&t<1110){ punkt='🟢'; txt='Beste Anrufzeit!'+(t<870?' (Gastro erst ab 14:30 — Mittagsservice)':''); }
+  else if(t>=540&&t<810){ punkt='🟡'; txt='Geht schon — richtig gut wird es ab 13:30'; }
+  else if(t>=1110&&t<1170){ punkt='🟡'; txt='Später Nachmittag — Kfz & Handwerk noch gut erreichbar'; }
+  return {uhr,punkt,txt};
+}
+function ampelHtml(){const i=deInfo();
+  return `<div class="ampel" id="ampel"><span class="uhr">🇩🇪 ${i.uhr} Uhr</span><span>${i.punkt} ${i.txt}</span></div>`;}
+setInterval(()=>{const el=document.getElementById('ampel');
+  if(el){const i=deInfo(); el.innerHTML=`<span class="uhr">🇩🇪 ${i.uhr} Uhr</span><span>${i.punkt} ${i.txt}</span>`;}},30000);
+const wannTxt=cb=>{try{const d=new Date(cb);
+  return (d.toLocaleDateString('sv-SE')===heute()?'heute ':d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+' ')
+    +d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}catch(e){return cb;}};
 
 function loginView(msg){
   $('#app').innerHTML=`<div class="login"><h1>📞 WebCraft Telefon-Cockpit</h1>
@@ -139,7 +176,18 @@ function offene(alle){
               .filter(l=>alle||!FILTER||gruppeVon(l.branche)===FILTER)
               .sort((a,b)=>(ordnung[a.prioritaet]??2)-(ordnung[b.prioritaet]??2));
 }
-function wiedervorlage(){ return LEADS.filter(l=>['rueckruf','keine_antwort'].includes(l.status)); }
+function wiedervorlage(){
+  return LEADS.filter(l=>['rueckruf','keine_antwort'].includes(l.status))
+    .sort((a,b)=>(a.status===b.status)?(a.callback||'9999').localeCompare(b.callback||'9999')
+                                      :(a.status==='rueckruf'?-1:1));
+}
+function faelligeRueckrufe(){
+  const jetzt=new Date();
+  return LEADS.filter(l=>l.status==='rueckruf'&&l.callback&&new Date(l.callback)<=jetzt);
+}
+function heuteUebermittelt(){
+  return LEADS.filter(l=>l.status==='interessiert'&&(l.updated_at||'').slice(0,10)===heute());
+}
 
 async function statsHeute(){
   try{ const d=await db.collection('wc_telefonisten').doc(UID).collection('tage').doc(heute()).get();
@@ -205,7 +253,7 @@ function staffelBanner(p){
 async function render(){
   const [st,prov]=await Promise.all([statsHeute(),provisionsStand()]);
   const alleOff=offene(true), off=offene(); LEAD=off[0]||null;
-  const wv=wiedervorlage();
+  const wv=wiedervorlage(), faellig=faelligeRueckrufe(), ueb=heuteUebermittelt();
   const zaehl={}; alleOff.forEach(l=>{const g=gruppeVon(l.branche); zaehl[g]=(zaehl[g]||0)+1;});
   const chips=[`<span class="chip${FILTER?'':' an'}" onclick="setFilter('')">Alle (${alleOff.length})</span>`]
     .concat(Object.entries(GRUPPEN).filter(([k])=>zaehl[k]).map(([k,g])=>
@@ -214,6 +262,9 @@ async function render(){
   $('#app').innerHTML=`
   <div class="top"><div class="logo"></div><b>Telefon-Cockpit</b><span class="who">${esc(NAME)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
   <div class="wrap">
+    ${ampelHtml()}
+    ${faellig.map(f=>`<div class="due">⏰ <div><b>Rückruf fällig: ${esc(f.firma)}</b><div class="s">vereinbart für ${esc(wannTxt(f.callback))} · ${esc(f.telefon)}</div></div>
+      <button onclick='nochmal("${f.id}")'>📞 Jetzt anrufen</button></div>`).join('')}
     ${staffelBanner(prov)}
     ${abschlussListe(prov)}
     <div class="stats">
@@ -235,11 +286,15 @@ async function render(){
       <li><b>Filter-Chips:</b> zeigen nur Leads der gewählten Branche aus DEINER Liste (die Zahl in Klammern = wie viele du davon hast). „Alle" = beste Priorität zuerst.</li>
       <li><b>Nachschub-Wunsch:</b> bestimmt, welche Branche du bevorzugt nachgelegt bekommst, wenn deine Liste zur Neige geht.</li>
       <li><b>💰 Leiste oben:</b> dein Provisions-Stand diesen Monat — je mehr Abschlüsse, desto höher die Stufe (100 → 120 → 140 €).</li>
+      <li><b>🔁 Rückruf mit Uhrzeit:</b> Betrieb erscheint zur gewählten Zeit oben als orange Erinnerung — nichts geht verloren.</li>
+      <li><b>📝 Notizen</b> („Chef erst ab 15 Uhr da") bleiben am Betrieb gespeichert — beim nächsten Mal siehst du sie sofort wieder.</li>
     </ol></details>
     <div id="main">${LEAD?karte(LEAD):`<div class="card empty"><div style="font-size:40px">🎉</div><h2>Liste abgearbeitet!</h2><p style="color:var(--muted);margin-top:8px">Melde dich bei Maxime für neue Leads.</p></div>`}</div>
     <div class="wv" id="wv">${wv.length?`<h3>🔁 Wiedervorlage (${wv.length})</h3>`+wv.map(w=>`
-      <div class="wvrow"><div><div class="l">${esc(w.firma)}</div><div class="s">${w.status==='rueckruf'?'Rückruf'+(w.callback?' '+esc(w.callback):''):'Keine Antwort'} · ${esc(w.telefon)}</div></div>
+      <div class="wvrow"><div><div class="l">${esc(w.firma)}</div><div class="s">${w.status==='rueckruf'?'Rückruf '+(w.callback?esc(wannTxt(w.callback)):''):'Keine Antwort'} · ${esc(w.telefon)}${w.notiz?' · 📝 '+esc(w.notiz.slice(0,60)):''}</div></div>
       <button onclick='nochmal("${w.id}")'>📞</button></div>`).join(''):''}</div>
+    <div class="ub">${ueb.length?`<h3>📤 Heute an das Büro übermittelt (${ueb.length})</h3>`+ueb.map(u=>`
+      <div class="ubrow">✅<div class="l">${esc(u.firma)}</div><div class="s">Vorschau geht an ${esc(u.email||'')}</div></div>`).join(''):''}</div>
   </div>`;
 }
 
@@ -248,10 +303,18 @@ function karte(l){return `<div class="card">
   <div class="sub">${esc(l.branche)}${l.stadt?' · '+esc(l.stadt):''}</div>
   ${l.ansprechpartner?`<div class="ap">👤 Ansprechpartner: <b>${esc(l.ansprechpartner)}</b></div>`:''}
   <div class="tel"><a href="tel:${esc((l.telefon||'').replace(/[^\d+]/g,''))}">${esc(l.telefon)||'—'}</a></div>
-  <div class="meta">${l.prioritaet?`<span class="tag">Priorität: ${esc(l.prioritaet)}</span>`:''}
+  <div class="meta">${l.rating?`<span class="stern">⭐ ${String(l.rating).replace('.',',')}${l.review_count?' · '+l.review_count+' Bewertungen':''}</span>`:''}
+    ${l.prioritaet?`<span class="tag">Priorität: ${esc(l.prioritaet)}</span>`:''}
+    ${l.versuche?`<span class="vers">📞 ${l.versuche+1}. Versuch</span>`:''}
     ${l.maps?`<a class="lnk" href="${esc(l.maps)}" target="_blank">Google Maps ↗</a>`:''}
     <a class="lnk" href="https://www.google.com/search?q=${encodeURIComponent('"'+l.firma+'" '+(l.stadt||'')+' Inhaber OR Geschäftsführer')}" target="_blank">🔍 Inhaber suchen ↗</a></div>
-  ${l.warum?`<div class="warum">💡 ${esc(l.warum)}</div>`:''}
+  ${l.warum?`<div class="warum">💡 ${esc(l.warum)}${l.rating>=4.5&&l.review_count>=20?` &nbsp;·&nbsp; <b>Einstieg:</b> „Sie haben ja hervorragende Bewertungen bei Google — ${String(l.rating).replace('.',',')} Sterne!“`:''}</div>`:''}
+  <details class="spick"><summary>🛡️ Einwand-Spickzettel — die 4 häufigsten Antworten</summary>
+    <p><b>„Keine Zeit."</b> → „Verstehe ich — deshalb nur ein Satz: Die Website liegt schon fertig für Sie bereit. Ich schicke Ihnen den Link, Sie schauen in Ruhe, wann es passt — kostenlos und unverbindlich."</p>
+    <p><b>„Brauchen wir nicht / haben genug Kunden."</b> → „Wunderbar, dann läuft es ja! Anschauen kostet Sie trotzdem nichts — und die meisten sind überrascht, wie gut der eigene Betrieb online aussehen kann. Wenn's Ihnen nichts bringt, war es ein netter Anruf."</p>
+    <p><b>„Was kostet das?"</b> → „Das Anschauen: gar nichts. Nur wenn sie Ihnen gefällt und Sie sie behalten möchten: einmalig 450 € — kein Abo, keine laufenden Kosten, die Seite gehört dann Ihnen."</p>
+    <p><b>„Schicken Sie mir Infos."</b> → „Sehr gerne — genau das mache ich. Dafür brauche ich nur Ihre E-Mail-Adresse, dann haben Sie den Link in wenigen Minuten im Postfach." <b>(= dein grünes Feld!)</b></p>
+  </details>
   <label class="elabel">📧 E-Mail des Kunden — dein wichtigstes Feld! Bei Interesse eintragen (laut buchstabieren lassen), dann ✅ klicken. Das Büro verschickt die Vorschau.</label>
   <input id="email" class="emailfeld" type="email" placeholder="kunde@betrieb.de">
   <div class="row">
@@ -263,9 +326,18 @@ function karte(l){return `<div class="card">
   </div>
   <div class="panel" id="p_cb"><label>Rückruf-Termin</label>
     <input id="callback" type="datetime-local"><button onclick="ergebnis('rueckruf')">Rückruf speichern →</button></div>
-  <textarea id="notiz" placeholder="Notiz zum Gespräch (optional)…"></textarea>
+  <textarea id="notiz" placeholder="Notiz zum Betrieb („Chef erst ab 15 Uhr da“) — speichert automatisch…" onblur="notizSpeichern('${esc(l.id)}')">${esc(l.notiz||'')}</textarea>
+  <div class="notizhint" id="notizhint"></div>
   <div class="jobmsg" id="jobmsg"></div>
 </div>`;}
+
+async function notizSpeichern(id){
+  const v=(($('#notiz')||{}).value||'').trim(); const l=LEADS.find(x=>x.id===id);
+  if(!l||(l.notiz||'')===v) return;
+  try{ await db.collection('wc_leads').doc(id).update({notiz:v, updated_at:new Date().toISOString()});
+       l.notiz=v; const h=$('#notizhint'); if(h){h.textContent='✓ Notiz gespeichert'; setTimeout(()=>{if($('#notizhint'))$('#notizhint').textContent='';},2200);} }
+  catch(e){ toast('Notiz nicht gespeichert: '+(e.code||e.message)); }
+}
 
 function panel(k){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));const p=$('#p_'+k);if(p)p.classList.add('show');}
 function setFilter(f){FILTER=f;render();}
@@ -305,7 +377,7 @@ async function ergebnis(art){
         created_at:new Date().toISOString()});
       beobachteJob(job, l.firma);
       toast('✅ An das Büro übermittelt');
-    } else { toast('Gespeichert'); await render(); }
+    } else { toast(art==='rueckruf'?'🔁 Rückruf gemerkt — nächster Betrieb 👇':'Gespeichert — nächster Betrieb 👇'); await render(); }
     if(art==='interessiert'){ /* Karte bleibt stehen bis Job-Status da ist */ }
   }catch(e){ toast('Fehler: '+(e.code||e.message)); }
 }
