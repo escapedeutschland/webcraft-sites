@@ -355,14 +355,16 @@ async function zaehle(felder){
   await ref.set(inc,{merge:true});
 }
 
+let BUSY=false;
 async function ergebnis(art){
-  if(!LEAD) return;
+  if(!LEAD||BUSY) return;
   const notiz=($('#notiz')||{}).value||'', email=(($('#email')||{}).value||'').trim(), callback=($('#callback')||{}).value||'';
   if(art==='interessiert' && !/.+@.+\..+/.test(email)){
     toast('Bitte zuerst die E-Mail des Kunden ins grüne Feld eintragen');
     const f=$('#email'); if(f){f.focus(); f.style.borderColor='#dc2626'; f.style.background='#fef2f2';}
     return; }
   const l=LEAD;
+  BUSY=true; document.querySelectorAll('.btn,.panel button').forEach(b=>b.disabled=true);
   try{
     await db.collection('wc_leads').doc(l.id).update({
       status:art, notiz:notiz, email:email, callback:callback,
@@ -376,25 +378,21 @@ async function ergebnis(art){
         stadt:l.stadt||'', branche:l.branche||'', email:email, status:'neu',
         created_at:new Date().toISOString()});
       beobachteJob(job, l.firma);
-      toast('✅ An das Büro übermittelt');
+      toast('✅ An das Büro übermittelt — nächster Betrieb 👇');
+      await render();
     } else { toast(art==='rueckruf'?'🔁 Rückruf gemerkt — nächster Betrieb 👇':'Gespeichert — nächster Betrieb 👇'); await render(); }
-    if(art==='interessiert'){ /* Karte bleibt stehen bis Job-Status da ist */ }
-  }catch(e){ toast('Fehler: '+(e.code||e.message)); }
+  }catch(e){ toast('Fehler: '+(e.code||e.message));
+    document.querySelectorAll('.btn,.panel button').forEach(b=>b.disabled=false); }
+  finally{ BUSY=false; }
 }
 
 function beobachteJob(ref, firma){
-  // Doppel-Klick-Schutz: solange der Auftrag laeuft, alle Buttons dieses Leads sperren
-  document.querySelectorAll('.btn,.panel button').forEach(b=>b.disabled=true);
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
-  const box=$('#jobmsg'); if(!box) return;
-  box.className='jobmsg zeig jm-lauf'; box.textContent='📤 An das Büro übermittelt — die Vorschau für '+firma+' geht gleich raus. Du kannst direkt weitertelefonieren.';
-  if(JOBUNSUB)JOBUNSUB();
-  JOBUNSUB=ref.onSnapshot(async s=>{
+  // Blockiert NICHTS: der Telefonist arbeitet sofort weiter. Meldung nur als Hinweis,
+  // sobald das Buero die Vorschau verschickt hat (kann Minuten bis Stunden dauern).
+  const unsub=ref.onSnapshot(s=>{
     const j=s.data()||{};
-    if(j.status==='fertig'){ box.className='jobmsg zeig jm-ok'; box.textContent='✅ Vorschau versendet an '+j.email; toast('✅ '+firma+': Vorschau versendet');
-      JOBUNSUB(); setTimeout(async()=>{await ladeLeads();render();},2500); }
-    if(j.status==='fehler'){ box.className='jobmsg zeig jm-err'; box.textContent='⚠️ Konnte gerade nicht verarbeitet werden — das Büro kümmert sich darum. Telefonier einfach weiter.';
-      JOBUNSUB(); setTimeout(async()=>{await ladeLeads();render();},4000); }
+    if(j.status==='fertig'){ toast('✅ '+firma+': Vorschau versendet'); unsub(); }
+    if(j.status==='fehler'){ toast('ℹ️ '+firma+': Das Büro kümmert sich darum'); unsub(); }
   });
 }
 </script>
