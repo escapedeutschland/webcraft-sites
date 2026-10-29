@@ -175,7 +175,7 @@ async function ladeLeads(){
 }
 
 // ===== NACHFASS: Interessierte mit verschickter Vorschau nachtelefonieren (hier fallen die Verkaeufe) =====
-let JOBS={}, NF=null, NFTEXT='';
+let JOBS={}, NF=null, NFTEXT='', NFFIRMA='';
 const NF_STATUS=['vorschau_gesendet','nf_spaeter','nf_aenderung','nf_zusage'];
 function nfFaellig(l){ const jetzt=Date.now();
   if(l.callback) return new Date(l.callback).getTime()<=jetzt;
@@ -193,6 +193,7 @@ function nfStart(id){ NF=id; render(); window.scrollTo(0,0); }
 function kopiere(){ navigator.clipboard.writeText(NFTEXT).then(()=>toast('📋 Text kopiert – in WhatsApp oder SMS einfügen')); }
 function leitfadenNF(){ return `<details class="spick" open><summary>📋 Leitfaden Nachfass-Anruf (2 Minuten)</summary>
 <p><b>1. Einstieg:</b> „Guten Tag, ${esc(NAME.split(' ')[0])} von WebCraft. Wir hatten vor ein paar Tagen telefoniert – das Büro hat Ihnen die Vorschau Ihrer neuen Website geschickt. Haben Sie schon reingeschaut?“</p>
+<p style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:7px 10px"><b>So sieht die Mail aus:</b> Absender <b>WebCraft &lt;maxime@webcraft-agentur.de&gt;</b> · Betreff <b>„Ihre Website-Vorschau ist fertig – ${esc(NFFIRMA)}“</b></p>
 <p><b>Noch nicht gesehen?</b> „Kein Problem – schauen Sie bitte kurz im Spam-Ordner nach. Ich lasse sie Ihnen sonst sofort nochmal schicken. Ist das noch die richtige E-Mail?“ → Adresse buchstabieren lassen, unten korrigieren, 📧 Vorschau erneut senden (kommt in 1–2 Minuten, gern während des Gesprächs).</p>
 <p><b>2. Meinung holen:</b> „Wie gefällt sie Ihnen? Was würden Sie anders haben wollen?“ – zuhören, alles in die Notiz.</p>
 <p><b>3. Änderungen sind ein gutes Zeichen:</b> „Das passen wir gern an – Bilder, Farben, Texte, ganz nach Ihren Wünschen.“ → ✏️ Will Änderungen (Wünsche genau notieren).</p>
@@ -200,7 +201,7 @@ function leitfadenNF(){ return `<details class="spick" open><summary>📋 Leitfa
 <p><b>Einwände:</b><br>„Zu teuer“ → „Ein einziger neuer Kunde über Google holt die 450 Euro meist schon wieder rein – und es ist eine einmalige Zahlung.“<br>„Muss ich mir überlegen“ → „Klar. Wann darf ich mich kurz nochmal melden?“ → 🔁 Später nochmal mit Termin.<br>„Brauche ich nicht“ → „Verstehe. Darf ich fragen, was Ihnen nicht gefallen hat?“ – Antwort notieren, dann ❌.</p>
 <p><b>Nie:</b> Rabatte oder eigene Zusagen machen – Sonderwünsche immer: „Das Büro meldet sich bei Ihnen.“</p></details>`; }
 function nfKarte(l){
-  const j=JOBS[l.id]||{}, tel=l.telefon||'', prev=j.preview||'', pay=j.payment||'';
+  const j=JOBS[l.id]||{}, tel=l.telefon||'', prev=j.preview||'', pay=j.payment||''; NFFIRMA=j.firma||l.firma||'';
   NFTEXT='Guten Tag, hier ist '+NAME.split(' ')[0]+' vom WebCraft-Team. Wie besprochen hier nochmal Ihre Website-Vorschau: '+prev
     +(pay?'\n\nWenn sie Ihnen gefällt, können Sie sie hier direkt übernehmen: '+pay:'')+'\n\nViele Grüße';
   const o=oeffTxt(j);
@@ -378,6 +379,7 @@ async function render(){
     <details class="hilfe"><summary>❓ Kurzanleitung — so funktioniert dein Cockpit</summary><ol>
       <li><b>Anrufen:</b> Die Karte zeigt dir immer den nächsten Betrieb (beste zuerst). Nummer wählen, Gespräch nach Leitfaden führen.</li>
       <li><b>Ergebnis klicken:</b> Nach JEDEM Gespräch einen der Buttons drücken — das pflegt deine Liste und Statistik automatisch.</li>
+      <li><b>Absender der Vorschau-Mail:</b> WebCraft &lt;maxime@webcraft-agentur.de&gt;, Betreff „Ihre Website-Vorschau ist fertig – [Firma]“. Findet der Kunde sie nicht: Spam-Ordner, sonst über 💬 Nachfassen erneut senden.</li>
       <li><b>Bei Interesse:</b> E-Mail des Kunden ins <span style="color:#15803d;font-weight:700">grüne Feld</span> tippen (laut buchstabieren lassen — eine falsche E-Mail = kein Abschluss!) und ✅ klicken. Das Büro verschickt die fertige Vorschau, du telefonierst einfach weiter.</li>
       <li><b>Filter-Chips:</b> zeigen nur Leads der gewählten Branche aus DEINER Liste (die Zahl in Klammern = wie viele du davon hast). „Alle" = beste Priorität zuerst.</li>
       <li><b>Nachschub-Wunsch:</b> bestimmt, welche Branche du bevorzugt nachgelegt bekommst, wenn deine Liste zur Neige geht.</li>
