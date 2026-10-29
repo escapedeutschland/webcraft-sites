@@ -170,7 +170,7 @@ async function ladeLeads(){
   const q=await db.collection('wc_leads').where('telefonist','==',UID).limit(3000).get();
   LEADS=q.docs.map(d=>({id:d.id,...d.data()}));
   try{ const jq=await db.collection('wc_jobs').where('telefonist','==',UID).get(); JOBS={};
-    jq.docs.forEach(d=>{const j=d.data(); if(j.lead&&j.status==='fertig'){const a=JOBS[j.lead]; if(!a||(j.done_at||'')>(a.done_at||'')) JOBS[j.lead]=j;}});
+    jq.docs.forEach(d=>{const j=d.data(); if(j.lead&&j.status==='fertig'&&j.art!=='erneut'){const a=JOBS[j.lead]; if(!a||(j.done_at||'')>(a.done_at||'')) JOBS[j.lead]=j;}});
   }catch(e){ JOBS={}; }
 }
 
@@ -193,14 +193,14 @@ function nfStart(id){ NF=id; render(); window.scrollTo(0,0); }
 function kopiere(){ navigator.clipboard.writeText(NFTEXT).then(()=>toast('📋 Text kopiert – in WhatsApp oder SMS einfügen')); }
 function leitfadenNF(){ return `<details class="spick" open><summary>📋 Leitfaden Nachfass-Anruf (2 Minuten)</summary>
 <p><b>1. Einstieg:</b> „Guten Tag, ${esc(NAME.split(' ')[0])} von WebCraft. Wir hatten vor ein paar Tagen telefoniert – das Büro hat Ihnen die Vorschau Ihrer neuen Website geschickt. Haben Sie schon reingeschaut?“</p>
-<p><b>Noch nicht gesehen?</b> „Kein Problem – schauen Sie ruhig auch im Spam-Ordner nach. Ich kann Ihnen den Link auch direkt aufs Handy schicken.“ → 💬 WhatsApp-Button oder 📋 Text kopieren.</p>
+<p><b>Noch nicht gesehen?</b> „Kein Problem – schauen Sie bitte kurz im Spam-Ordner nach. Ich lasse sie Ihnen sonst sofort nochmal schicken. Ist das noch die richtige E-Mail?“ → Adresse buchstabieren lassen, unten korrigieren, 📧 Vorschau erneut senden (kommt in 1–2 Minuten, gern während des Gesprächs).</p>
 <p><b>2. Meinung holen:</b> „Wie gefällt sie Ihnen? Was würden Sie anders haben wollen?“ – zuhören, alles in die Notiz.</p>
 <p><b>3. Änderungen sind ein gutes Zeichen:</b> „Das passen wir gern an – Bilder, Farben, Texte, ganz nach Ihren Wünschen.“ → ✏️ Will Änderungen (Wünsche genau notieren).</p>
-<p><b>4. Abschluss:</b> „Wenn sie Ihnen gefällt, ist sie für einmalig 450 Euro sofort Ihre – steuerlich voll absetzbar. Den Kauf-Link haben Sie in der Mail, ich schicke ihn Ihnen gern auch aufs Handy. Soll ich?“ → 🤝 Will kaufen</p>
+<p><b>4. Abschluss:</b> „Wenn sie Ihnen gefällt, ist sie für einmalig 450 Euro sofort Ihre – steuerlich voll absetzbar. Unten in der Mail ist der Button zum Übernehmen – soll ich sie Ihnen nochmal schicken, damit Sie sie gleich oben im Posteingang haben?“ → 🤝 Will kaufen</p>
 <p><b>Einwände:</b><br>„Zu teuer“ → „Ein einziger neuer Kunde über Google holt die 450 Euro meist schon wieder rein – und es ist eine einmalige Zahlung.“<br>„Muss ich mir überlegen“ → „Klar. Wann darf ich mich kurz nochmal melden?“ → 🔁 Später nochmal mit Termin.<br>„Brauche ich nicht“ → „Verstehe. Darf ich fragen, was Ihnen nicht gefallen hat?“ – Antwort notieren, dann ❌.</p>
 <p><b>Nie:</b> Rabatte oder eigene Zusagen machen – Sonderwünsche immer: „Das Büro meldet sich bei Ihnen.“</p></details>`; }
 function nfKarte(l){
-  const j=JOBS[l.id]||{}, tel=l.telefon||'', wa=waNummer(tel), prev=j.preview||'', pay=j.payment||'';
+  const j=JOBS[l.id]||{}, tel=l.telefon||'', prev=j.preview||'', pay=j.payment||'';
   NFTEXT='Guten Tag, hier ist '+NAME.split(' ')[0]+' vom WebCraft-Team. Wie besprochen hier nochmal Ihre Website-Vorschau: '+prev
     +(pay?'\n\nWenn sie Ihnen gefällt, können Sie sie hier direkt übernehmen: '+pay:'')+'\n\nViele Grüße';
   const o=oeffTxt(j);
@@ -213,7 +213,11 @@ function nfKarte(l){
   <div class="tel"><a href="tel:${esc(tel.replace(/[^\d+]/g,''))}">${esc(tel)}</a></div>
   <div class="meta"><span class="vers">📤 ${esc(nfStatusTxt(l))}</span>${o?`<span class="${j.geoeffnet>0?'stern':'vers'}">${o}</span>`:''}${l.email?`<span class="vers">✉️ ${esc(l.email)}</span>`:''}</div>
   ${l.notiz?`<div class="warum">📝 ${esc(l.notiz)}</div>`:''}
-  <div class="meta" style="margin-top:12px">${prev?`<a class="lnk" href="${esc(prev)}" target="_blank">🌐 Vorschau ansehen</a>`:''}${wa&&prev?`<a class="lnk" href="https://wa.me/${wa}?text=${encodeURIComponent(NFTEXT)}" target="_blank">💬 Per WhatsApp schicken</a>`:''}${prev?`<a class="lnk" href="#" onclick="kopiere();return false">📋 Text kopieren</a>`:''}</div>
+  <div class="meta" style="margin-top:12px">${prev?`<a class="lnk" href="${esc(prev)}" target="_blank">🌐 Vorschau ansehen</a>`:''}</div>
+  ${prev?`<label class="elabel">📧 Vorschau erneut senden (E-Mail prüfen oder korrigieren)</label>
+  <div style="display:flex;gap:8px"><input class="emailfeld" id="nfemail" value="${esc(l.email||'')}" style="flex:1">
+  <button class="btn cb" style="white-space:nowrap" onclick="nfErneut()">📧 Senden</button></div>
+  <div class="notizhint" id="nfsendhint">${(JOBS[l.id]||{}).erneut_gesendet?'Zuletzt erneut gesendet: '+esc(wannTxt(JOBS[l.id].erneut_gesendet)):''}</div>`:''}
   ${leitfadenNF()}
   <textarea id="nfnotiz" placeholder="Notiz: Was sagt der Kunde? Welche Änderungen wünscht er?">${esc(l.notiz||'')}</textarea>
   <div class="row">
@@ -225,6 +229,20 @@ function nfKarte(l){
   </div>
   <div class="panel" id="nfpanel"><label>Wann soll ich dich erinnern?</label><input type="datetime-local" id="nfcb"><button onclick="nfErgebnis('spaeter')">Rückruf speichern</button></div>
   </div>`; }
+async function nfErneut(){
+  const l=LEADS.find(x=>x.id===NF); if(!l||BUSY) return;
+  const email=(($('#nfemail')||{}).value||'').trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(email)){ toast('Bitte eine gültige E-Mail-Adresse eintragen'); return; }
+  BUSY=true;
+  try{
+    if(email!==(l.email||'')) await db.collection('wc_leads').doc(l.id).update({email, updated_at:new Date().toISOString()});
+    await db.collection('wc_jobs').add({telefonist:UID, lead:l.id, firma:l.firma, stadt:l.stadt||'', branche:l.branche||'',
+      email, art:'erneut', status:'neu', created_at:new Date().toISOString()});
+    l.email=email; const h=$('#nfsendhint'); if(h) h.textContent='📧 Wird gesendet – kommt in 1–2 Minuten an '+email;
+    toast('📧 Das Büro schickt die Vorschau gleich nochmal an '+email);
+  }catch(e){ toast('Fehler: '+(e.code||e.message)); }
+  finally{ BUSY=false; }
+}
 async function nfErgebnis(art){
   const l=LEADS.find(x=>x.id===NF); if(!l||BUSY) return;
   const notiz=($('#nfnotiz')||{}).value||''; let status=l.status, callback=l.callback||'';
