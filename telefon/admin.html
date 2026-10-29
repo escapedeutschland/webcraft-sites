@@ -72,16 +72,51 @@ async function summe(uid, tage){
   return s;
 }
 
+// ===== Nachfassen & Vorschauen: jede verschickte Vorschau, ob angesehen, Nachfass-Stand =====
+function nachfassBereich(fertigSnap, LEADMAP, tels){
+  const jetzt=Date.now(), byLead={};
+  fertigSnap.docs.forEach(d=>{const j=d.data(); if(!j.lead||j.art==='erneut') return;
+    const a=byLead[j.lead]; if(!a||(j.done_at||'')>(a.done_at||'')) byLead[j.lead]=j;});
+  const rang={nf_aenderung:0,nf_zusage:1,nf_spaeter:3,vorschau_gesendet:2,gekauft:5,kein_interesse:6};
+  const txt={vorschau_gesendet:'Vorschau verschickt',nf_spaeter:'🔁 Rückruf vereinbart',nf_aenderung:'✏️ Will Änderungen',
+    nf_zusage:'🤝 Will kaufen',gekauft:'💰 Gekauft',kein_interesse:'❌ Kein Interesse'};
+  const cls={nf_aenderung:'gelbp',nf_zusage:'gruen',gekauft:'gruen',kein_interesse:'rot'};
+  const rows=Object.entries(byLead).map(([id,j])=>({id,j,l:LEADMAP[id]||{}}))
+    .sort((a,b)=>((rang[a.l.status]??4)-(rang[b.l.status]??4))||((b.j.done_at||'').localeCompare(a.j.done_at||'')));
+  const seit=iso=>{const d=Math.floor((jetzt-new Date(iso||0).getTime())/864e5);return d<=0?'heute':(d===1?'1 Tag':d+' Tage');};
+  const faellig=r=>{const l=r.l; if(!['vorschau_gesendet','nf_spaeter','nf_aenderung','nf_zusage'].includes(l.status)) return false;
+    return l.callback? new Date(l.callback).getTime()<=jetzt : jetzt-new Date(r.j.done_at||0).getTime()>=2*864e5;};
+  const n=k=>rows.filter(r=>r.l.status===k).length, angesehen=rows.filter(r=>(r.j.geoeffnet||0)>0).length;
+  return `<h2>💬 Nachfassen &amp; Vorschauen</h2>
+    <div class="kpis">
+      <div class="kpi"><b>${rows.length}</b><span>Vorschauen verschickt</span></div>
+      <div class="kpi"><b>${angesehen}</b><span>davon angesehen</span></div>
+      <div class="kpi"><b>${rows.filter(faellig).length}</b><span>Nachfass fällig</span></div>
+      <div class="kpi"><b>${n('nf_aenderung')}</b><span>✏️ Änderungswünsche</span></div>
+      <div class="kpi"><b>${n('nf_zusage')}</b><span>🤝 Kaufzusagen</span></div>
+    </div>
+    <p class="hint">Vorschau-Mail: Absender <b>WebCraft &lt;maxime@webcraft-agentur.de&gt;</b> · Betreff „Ihre Website-Vorschau ist fertig – [Firma]“ · „Angesehen“ = Klick auf „Meine Website ansehen“ in der Mail (alle 15 Min. aktualisiert, solange der Worker läuft).</p>
+    <div class="tableswrap" style="margin-top:10px"><table><tr><th>Firma</th><th>Telefonist</th><th>Vorschau seit</th><th>Angesehen</th><th>Stand</th><th>Notiz</th></tr>
+    ${rows.map(r=>{const t=tels.find(t=>t.uid===r.j.telefonist), g=r.j.geoeffnet;
+      return `<tr${faellig(r)?' style="background:#faf5ff"':''}><td><b>${esc(r.j.firma)}</b><div class="hint"><a href="${esc(r.j.preview)}" target="_blank">Vorschau</a> · ${esc(r.l.email||r.j.email||'')}${r.j.erneut_gesendet?' · 📧 erneut gesendet':''}</div></td>
+        <td>${t?esc(t.name):'—'}</td><td>${seit(r.j.done_at)}</td>
+        <td>${r.j.oeffnung_geprueft?(g>0?`<span class="pill gruen">👀 ${g}×</span>`:'<span class="pill rot">nein</span>'):'<span class="pill grau">?</span>'}</td>
+        <td><span class="pill ${cls[r.l.status]||'grau'}">${esc(txt[r.l.status]||r.l.status||'—')}</span>${faellig(r)?'<div class="hint">fällig</div>':''}</td>
+        <td class="hint">${esc((r.l.notiz||'').slice(0,120))}</td></tr>`;}).join('')||'<tr><td colspan="6" class="hint">Noch keine Vorschauen verschickt.</td></tr>'}</table></div>`;
+}
+
 async function dashboard(u){
   $('#app').innerHTML=`<div class="top"><div class="logo"></div><b>Telefonzentrale — Admin</b>
     <span class="who">${esc(u.email)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
     <div class="wrap" id="inhalt">Lade…</div>`;
-  const [telSnap, salesSnap, fehlerSnap, bewerberSnap] = await Promise.all([
+  const [telSnap, salesSnap, fehlerSnap, bewerberSnap, fertigSnap] = await Promise.all([
     db.collection('wc_telefonisten').get(),
     db.collection('wc_sales').get(),
     db.collection('wc_jobs').where('status','==','fehler').get(),
-    db.collection('wc_bewerber').get()
+    db.collection('wc_bewerber').get(),
+    db.collection('wc_jobs').where('status','==','fertig').get()
   ]);
+  const LEADMAP={};
   const tels=telSnap.docs.map(d=>({uid:d.id,...d.data()}));
   const sales=salesSnap.docs.map(d=>({id:d.id,...d.data()}));
 
@@ -97,11 +132,12 @@ async function dashboard(u){
     const [s7,s30,leadsSnap]=await Promise.all([summe(t.uid,7),summe(t.uid,30),
       db.collection('wc_leads').where('telefonist','==',t.uid).get()]);
     const leads=leadsSnap.docs.map(d=>d.data());
+    leadsSnap.docs.forEach(d=>LEADMAP[d.id]=d.data());
     const st=s=>leads.filter(l=>l.status===s).length;
     const meineSales=sales.filter(x=>x.telefonist===t.uid&&!x.bonus);
     const prov=sales.filter(x=>x.telefonist===t.uid).reduce((a,x)=>a+(x.provision_eur||0),0);
     gesamt.anrufe+=s30.anrufe; gesamt.interessiert+=s30.interessiert;
-    const vorschauen=st('vorschau_gesendet')+st('gekauft');
+    const vorschauen=['vorschau_gesendet','gekauft','nf_spaeter','nf_aenderung','nf_zusage'].reduce((a,k)=>a+st(k),0);
     const qE=s30.erreicht/Math.max(1,s30.anrufe), qI=s30.interessiert/Math.max(1,s30.erreicht),
           qK=meineSales.length/Math.max(1,vorschauen);
     zeilen+=`<tr><td><b>${esc(t.name)}</b><div class="hint">${esc(t.email)}${t.aktiv===false?' · <span class="pill rot">inaktiv</span>':''}${t.training?' · <span class="pill gelbp">🎓 Training</span>':''}</div></td>
@@ -126,6 +162,7 @@ async function dashboard(u){
       <div class="kpi"><b>${sales.length}</b><span>Verkäufe gesamt</span></div>
       <div class="kpi"><b>${EUR(umsatz)}</b><span>Umsatz · Provision: ${EUR(provGesamt)}</span></div>
     </div>
+    ${nachfassBereich(fertigSnap, LEADMAP, tels)}
     <h2>👥 Telefonisten <span class="hint">(Zahlen: 7 Tage / 30 Tage)</span></h2>
     <div class="tableswrap"><table><tr><th>Telefonist</th><th>Leads</th><th>Anrufe</th><th>Erreicht</th><th>Interessiert</th><th>Quoten-Ampel (30 T.)</th><th>Vorschauen</th><th>Verkäufe</th><th>Provision</th></tr>
     ${zeilen||'<tr><td colspan="9">Noch keine Telefonisten angelegt.</td></tr>'}</table></div>
