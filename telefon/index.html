@@ -167,8 +167,83 @@ auth.onAuthStateChanged(async u=>{
 });
 
 async function ladeLeads(){
-  const q=await db.collection('wc_leads').where('telefonist','==',UID).limit(500).get();
+  const q=await db.collection('wc_leads').where('telefonist','==',UID).limit(3000).get();
   LEADS=q.docs.map(d=>({id:d.id,...d.data()}));
+  try{ const jq=await db.collection('wc_jobs').where('telefonist','==',UID).get(); JOBS={};
+    jq.docs.forEach(d=>{const j=d.data(); if(j.lead&&j.status==='fertig'){const a=JOBS[j.lead]; if(!a||(j.done_at||'')>(a.done_at||'')) JOBS[j.lead]=j;}});
+  }catch(e){ JOBS={}; }
+}
+
+// ===== NACHFASS: Interessierte mit verschickter Vorschau nachtelefonieren (hier fallen die Verkaeufe) =====
+let JOBS={}, NF=null, NFTEXT='';
+const NF_STATUS=['vorschau_gesendet','nf_spaeter','nf_aenderung','nf_zusage'];
+function nfFaellig(l){ const jetzt=Date.now();
+  if(l.callback) return new Date(l.callback).getTime()<=jetzt;
+  const t=new Date((JOBS[l.id]||{}).done_at||l.updated_at||0).getTime(); return jetzt-t>=2*864e5; }
+function nachfassListe(){ return LEADS.filter(l=>NF_STATUS.includes(l.status))
+  .sort((a,b)=>(nfFaellig(b)-nfFaellig(a))||(((JOBS[a.id]||{}).done_at||'').localeCompare((JOBS[b.id]||{}).done_at||''))); }
+function seitTxt(iso){ if(!iso) return ''; const d=Math.floor((Date.now()-new Date(iso).getTime())/864e5);
+  return d<=0?'heute':(d===1?'seit 1 Tag':'seit '+d+' Tagen'); }
+function oeffTxt(j){ if(!j||!j.oeffnung_geprueft) return ''; return j.geoeffnet>0?('👀 '+j.geoeffnet+'× angesehen'):'👀 noch nicht angesehen'; }
+function nfStatusTxt(l){ return {vorschau_gesendet:'Vorschau '+seitTxt((JOBS[l.id]||{}).done_at||l.updated_at),
+  nf_spaeter:'Rückruf '+(l.callback?wannTxt(l.callback):''), nf_aenderung:'✏️ will Änderungen', nf_zusage:'🤝 will kaufen'}[l.status]||''; }
+function waNummer(t){ let d=(t||'').replace(/[^\d]/g,''); if(d.startsWith('00')) d=d.slice(2); else if(d.startsWith('0')) d='49'+d.slice(1);
+  return /^491[5-7]\d{7,}$/.test(d)?d:''; }   // WhatsApp nur bei deutscher Handynummer
+function nfStart(id){ NF=id; render(); window.scrollTo(0,0); }
+function kopiere(){ navigator.clipboard.writeText(NFTEXT).then(()=>toast('📋 Text kopiert – in WhatsApp oder SMS einfügen')); }
+function leitfadenNF(){ return `<details class="spick" open><summary>📋 Leitfaden Nachfass-Anruf (2 Minuten)</summary>
+<p><b>1. Einstieg:</b> „Guten Tag, ${esc(NAME.split(' ')[0])} von WebCraft. Wir hatten vor ein paar Tagen telefoniert – das Büro hat Ihnen die Vorschau Ihrer neuen Website geschickt. Haben Sie schon reingeschaut?“</p>
+<p><b>Noch nicht gesehen?</b> „Kein Problem – schauen Sie ruhig auch im Spam-Ordner nach. Ich kann Ihnen den Link auch direkt aufs Handy schicken.“ → 💬 WhatsApp-Button oder 📋 Text kopieren.</p>
+<p><b>2. Meinung holen:</b> „Wie gefällt sie Ihnen? Was würden Sie anders haben wollen?“ – zuhören, alles in die Notiz.</p>
+<p><b>3. Änderungen sind ein gutes Zeichen:</b> „Das passen wir gern an – Bilder, Farben, Texte, ganz nach Ihren Wünschen.“ → ✏️ Will Änderungen (Wünsche genau notieren).</p>
+<p><b>4. Abschluss:</b> „Wenn sie Ihnen gefällt, ist sie für einmalig 450 Euro sofort Ihre – steuerlich voll absetzbar. Den Kauf-Link haben Sie in der Mail, ich schicke ihn Ihnen gern auch aufs Handy. Soll ich?“ → 🤝 Will kaufen</p>
+<p><b>Einwände:</b><br>„Zu teuer“ → „Ein einziger neuer Kunde über Google holt die 450 Euro meist schon wieder rein – und es ist eine einmalige Zahlung.“<br>„Muss ich mir überlegen“ → „Klar. Wann darf ich mich kurz nochmal melden?“ → 🔁 Später nochmal mit Termin.<br>„Brauche ich nicht“ → „Verstehe. Darf ich fragen, was Ihnen nicht gefallen hat?“ – Antwort notieren, dann ❌.</p>
+<p><b>Nie:</b> Rabatte oder eigene Zusagen machen – Sonderwünsche immer: „Das Büro meldet sich bei Ihnen.“</p></details>`; }
+function nfKarte(l){
+  const j=JOBS[l.id]||{}, tel=l.telefon||'', wa=waNummer(tel), prev=j.preview||'', pay=j.payment||'';
+  NFTEXT='Guten Tag, hier ist '+NAME.split(' ')[0]+' vom WebCraft-Team. Wie besprochen hier nochmal Ihre Website-Vorschau: '+prev
+    +(pay?'\n\nWenn sie Ihnen gefällt, können Sie sie hier direkt übernehmen: '+pay:'')+'\n\nViele Grüße';
+  const o=oeffTxt(j);
+  return `<div class="card">
+  <button class="btn skip" style="margin-bottom:14px" onclick="NF=null;render()">⬅ Zurück zur Anrufliste</button>
+  <span class="tag" style="background:#ede9fe;color:#6d28d9">💬 Nachfass-Anruf</span>
+  <div class="firma" style="margin-top:10px">${esc(l.firma)}</div>
+  <div class="sub">${esc(l.branche||'')}${l.stadt?' · '+esc(l.stadt):''}</div>
+  ${l.ansprechpartner?`<div class="ap">👤 ${esc(l.ansprechpartner)}</div>`:''}
+  <div class="tel"><a href="tel:${esc(tel.replace(/[^\d+]/g,''))}">${esc(tel)}</a></div>
+  <div class="meta"><span class="vers">📤 ${esc(nfStatusTxt(l))}</span>${o?`<span class="${j.geoeffnet>0?'stern':'vers'}">${o}</span>`:''}${l.email?`<span class="vers">✉️ ${esc(l.email)}</span>`:''}</div>
+  ${l.notiz?`<div class="warum">📝 ${esc(l.notiz)}</div>`:''}
+  <div class="meta" style="margin-top:12px">${prev?`<a class="lnk" href="${esc(prev)}" target="_blank">🌐 Vorschau ansehen</a>`:''}${wa&&prev?`<a class="lnk" href="https://wa.me/${wa}?text=${encodeURIComponent(NFTEXT)}" target="_blank">💬 Per WhatsApp schicken</a>`:''}${prev?`<a class="lnk" href="#" onclick="kopiere();return false">📋 Text kopieren</a>`:''}</div>
+  ${leitfadenNF()}
+  <textarea id="nfnotiz" placeholder="Notiz: Was sagt der Kunde? Welche Änderungen wünscht er?">${esc(l.notiz||'')}</textarea>
+  <div class="row">
+    <button class="btn yes" onclick="nfErgebnis('zusage')">🤝 Will kaufen</button>
+    <button class="btn cb" onclick="nfErgebnis('aenderung')">✏️ Will Änderungen</button>
+    <button class="btn wait" onclick="document.getElementById('nfpanel').classList.add('show')">🔁 Später nochmal</button>
+    <button class="btn wait" onclick="nfErgebnis('nicht_erreicht')">📵 Nicht erreicht</button>
+    <button class="btn no" onclick="nfErgebnis('kein_interesse')">❌ Kein Interesse</button>
+  </div>
+  <div class="panel" id="nfpanel"><label>Wann soll ich dich erinnern?</label><input type="datetime-local" id="nfcb"><button onclick="nfErgebnis('spaeter')">Rückruf speichern</button></div>
+  </div>`; }
+async function nfErgebnis(art){
+  const l=LEADS.find(x=>x.id===NF); if(!l||BUSY) return;
+  const notiz=($('#nfnotiz')||{}).value||''; let status=l.status, callback=l.callback||'';
+  if(art==='spaeter'){ callback=($('#nfcb')||{}).value||''; if(!callback){ toast('Bitte Datum und Uhrzeit wählen'); return; } status='nf_spaeter'; }
+  if(art==='nicht_erreicht') callback=new Date(Date.now()+864e5).toISOString();
+  if(art==='zusage'){ status='nf_zusage'; callback=new Date(Date.now()+2*864e5).toISOString(); }
+  if(art==='aenderung'){ status='nf_aenderung'; callback=new Date(Date.now()+3*864e5).toISOString(); }
+  if(art==='kein_interesse'){ status='kein_interesse'; callback=''; }
+  BUSY=true;
+  try{
+    await db.collection('wc_leads').doc(l.id).update({status, notiz, callback, versuche:FV.increment(1), updated_at:new Date().toISOString()});
+    await db.collection('wc_calls').add({telefonist:UID, lead:l.id, firma:l.firma, aktion:'nf_'+art, ts:new Date().toISOString()});
+    await zaehle(['nachfass','nf_'+art]);
+    Object.assign(l,{status,notiz,callback}); NF=null;
+    toast({zusage:'🤝 Super! Das Büro sieht die Zusage.',aenderung:'✏️ Notiert – das Büro kümmert sich um die Änderungen',
+      kein_interesse:'Notiert.',spaeter:'🔁 Rückruf gespeichert',nicht_erreicht:'📵 Kommt morgen wieder in die Liste'}[art]);
+    await render();
+  }catch(e){ toast('Fehler: '+(e.code||e.message)); }
+  finally{ BUSY=false; }
 }
 function offene(alle){
   const ordnung={'Hoch':0,'Mittel':1};
@@ -254,6 +329,7 @@ async function render(){
   const [st,prov]=await Promise.all([statsHeute(),provisionsStand()]);
   const alleOff=offene(true), off=offene(); LEAD=off[0]||null;
   const wv=wiedervorlage(), faellig=faelligeRueckrufe(), ueb=heuteUebermittelt();
+  const nf=nachfassListe(), nfF=nf.filter(nfFaellig), nfLead=NF?LEADS.find(x=>x.id===NF):null;
   const zaehl={}; alleOff.forEach(l=>{const g=gruppeVon(l.branche); zaehl[g]=(zaehl[g]||0)+1;});
   const chips=[`<span class="chip${FILTER?'':' an'}" onclick="setFilter('')">Alle (${alleOff.length})</span>`]
     .concat(Object.entries(GRUPPEN).filter(([k])=>zaehl[k]).map(([k,g])=>
@@ -263,6 +339,8 @@ async function render(){
   <div class="top"><div class="logo"></div><b>Telefon-Cockpit</b><span class="who">${esc(NAME)} · <a href="#" onclick="auth.signOut();return false">Abmelden</a></span></div>
   <div class="wrap">
     ${ampelHtml()}
+    ${nfF.length&&!nfLead?`<div class="due" style="background:#faf5ff;border-color:#c4b5fd">💬 <div><b style="color:#6d28d9">${nfF.length} Nachfass-Anruf${nfF.length>1?'e':''} fällig</b><div class="s">Hier fallen die Verkäufe – am besten zuerst erledigen</div></div>
+      <button style="background:#7c3aed" onclick='nfStart("${nfF[0].id}")'>📞 Starten</button></div>`:''}
     ${faellig.map(f=>`<div class="due">⏰ <div><b>Rückruf fällig: ${esc(f.firma)}</b><div class="s">vereinbart für ${esc(wannTxt(f.callback))} · ${esc(f.telefon)}</div></div>
       <button onclick='nochmal("${f.id}")'>📞 Jetzt anrufen</button></div>`).join('')}
     ${staffelBanner(prov)}
@@ -289,7 +367,10 @@ async function render(){
       <li><b>🔁 Rückruf mit Uhrzeit:</b> Betrieb erscheint zur gewählten Zeit oben als orange Erinnerung — nichts geht verloren.</li>
       <li><b>📝 Notizen</b> („Chef erst ab 15 Uhr da") bleiben am Betrieb gespeichert — beim nächsten Mal siehst du sie sofort wieder.</li>
     </ol></details>
-    <div id="main">${LEAD?karte(LEAD):`<div class="card empty"><div style="font-size:40px">🎉</div><h2>Liste abgearbeitet!</h2><p style="color:var(--muted);margin-top:8px">Melde dich bei Maxime für neue Leads.</p></div>`}</div>
+    <div id="main">${nfLead?nfKarte(nfLead):LEAD?karte(LEAD):`<div class="card empty"><div style="font-size:40px">🎉</div><h2>Liste abgearbeitet!</h2><p style="color:var(--muted);margin-top:8px">Melde dich bei Maxime für neue Leads.</p></div>`}</div>
+    <div class="wv">${nf.length?`<h3>💬 Nachfassen (${nfF.length} fällig · ${nf.length} insgesamt)</h3>`+nf.map(n=>`
+      <div class="wvrow"${nfFaellig(n)?' style="border-color:#c4b5fd;background:#faf5ff"':''}><div><div class="l">${esc(n.firma)}</div><div class="s">${esc(nfStatusTxt(n))}${oeffTxt(JOBS[n.id])?' · '+oeffTxt(JOBS[n.id]):''} · ${esc(n.telefon)}</div></div>
+      <button onclick='nfStart("${n.id}")'>${nfFaellig(n)?'📞':'👁'}</button></div>`).join(''):''}</div>
     <div class="wv" id="wv">${wv.length?`<h3>🔁 Wiedervorlage (${wv.length})</h3>`+wv.map(w=>`
       <div class="wvrow"><div><div class="l">${esc(w.firma)}</div><div class="s">${w.status==='rueckruf'?'Rückruf '+(w.callback?esc(wannTxt(w.callback)):''):'Keine Antwort'} · ${esc(w.telefon)}${w.notiz?' · 📝 '+esc(w.notiz.slice(0,60)):''}</div></div>
       <button onclick='nochmal("${w.id}")'>📞</button></div>`).join(''):''}</div>
